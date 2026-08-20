@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 const useThemeStore = create((set, get) => ({
-  darkMode: true, // ALWAYS DEFAULT TO BEAUTIFUL NIGHT DARK MODE
+  darkMode: false, // Default to Clean Soft Balanced Theme
   sidebarOpen: true,
 
   toggleTheme: () => {
@@ -19,9 +19,5 @@ const useThemeStore = create((set, get) => ({
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
   setSidebarOpen: (isOpen) => set({ sidebarOpen: isOpen }),
 }));
-
-if (typeof window !== "undefined" && typeof document !== "undefined") {
-  document.documentElement.classList.add("dark");
-}
 
 export default useThemeStore;
