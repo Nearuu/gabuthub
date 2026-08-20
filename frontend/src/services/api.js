@@ -3,7 +3,7 @@ import { MOCK_CONTENTS, MOCK_POLLS, MOCK_POSTS, MOCK_GAME_CHARS, MOCK_HOT_TAKES 
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")) {
-    return "/api";
+    return "https://gabuthub-production.up.railway.app/api";
   }
   return "http://127.0.0.1:8000/api";
 };
@@ -33,7 +33,6 @@ API.interceptors.request.use(
 // Response interceptor to handle token expiry / unauthenticated errors and cloud fallback
 API.interceptors.response.use(
   (response) => {
-    // If response data is empty array on Vercel, serve fallback mock data
     if (Array.isArray(response.data) && response.data.length === 0) {
       if (response.config.url.includes("/contents")) return { ...response, data: MOCK_CONTENTS };
       if (response.config.url.includes("/polls")) return { ...response, data: MOCK_POLLS };
@@ -49,7 +48,6 @@ API.interceptors.response.use(
       localStorage.removeItem("user");
     }
 
-    // Fallback strategy for network/404 errors on cloud hosting
     if (!error.response || error.response.status === 404 || error.code === "ERR_NETWORK") {
       const url = error.config?.url || "";
       if (url.includes("/contents")) return Promise.resolve({ data: MOCK_CONTENTS, status: 200 });
@@ -83,5 +81,4 @@ API.interceptors.response.use(
   }
 );
 
-// Export API instance
 export default API;
