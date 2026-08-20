@@ -105,8 +105,8 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'username' => 'nullable|string|max:100',
-            'bio' => 'nullable|string|max:1000',
-            'avatar' => 'nullable|string|max:2000',
+            'bio' => 'nullable|string|max:2000',
+            'avatar' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {

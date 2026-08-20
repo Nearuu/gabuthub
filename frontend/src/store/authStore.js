@@ -173,9 +173,11 @@ const useAuthStore = create((set, get) => ({
     };
 
     saveUserToGlobalRegistry(updatedUser);
+    set({ user: updatedUser });
+    localStorage.setItem("user", JSON.stringify(updatedUser));
 
     try {
-      await API.put("/user/profile", { 
+      await API.post("/user/profile", { 
         email: currentUser.email,
         username: newUsername || currentUser.username,
         bio: bio !== undefined ? bio : currentUser.bio, 
@@ -184,8 +186,6 @@ const useAuthStore = create((set, get) => ({
       });
     } catch (e) {}
 
-    set({ user: updatedUser });
-    localStorage.setItem("user", JSON.stringify(updatedUser));
     return { success: true };
   },
 }));
