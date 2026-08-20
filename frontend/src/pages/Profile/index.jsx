@@ -131,42 +131,42 @@ export default function Profile() {
       
       {/* ────── PREMIUM BANNER & USER PROFILE HEADER ────── */}
       <div className="relative overflow-hidden rounded-3xl border border-wm-border bg-wm-card shadow-2xl">
-        {/* Decorative Custom Cover Banner */}
+        
+        {/* 1. MURNI COVER BANNER ATAS (BERSIH DARI TEKS APAPUN) */}
         <div 
-          className="h-48 w-full bg-cover bg-center relative transition-all duration-300"
+          className="h-52 w-full bg-cover bg-center relative transition-all duration-300"
           style={{
             backgroundImage: coverUrl 
               ? `url(${coverUrl})`
-              : "linear-gradient(to right, rgba(0, 229, 117, 0.3), rgba(20, 184, 166, 0.2), rgba(168, 85, 247, 0.3))"
+              : "linear-gradient(to right, rgba(0, 229, 117, 0.35), rgba(20, 184, 166, 0.25), rgba(168, 85, 247, 0.35))"
           }}
         >
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
           <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-            <span className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 text-2xs font-bold text-white flex items-center gap-1.5 shadow-md">
+            <span className="rounded-full bg-black/60 backdrop-blur-md border border-white/20 px-3.5 py-1 text-2xs font-bold text-white flex items-center gap-1.5 shadow-lg">
               <Sparkles size={13} className="text-wm-accent" /> {user.role === "admin" ? "Administrator Resmi" : "Member Resmi"}
             </span>
           </div>
         </div>
 
-        {/* Header Main Info - ENTIRELY INSIDE THE WHITE/CARD BACKGROUND AREA */}
-        <div className="relative px-8 pb-8 pt-4 bg-wm-card">
-          <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 text-center md:text-left -mt-20">
+        {/* 2. MURNI AREA KARTU BERSIH (100% TERPISAH DI BAWAH BANNER) */}
+        <div className="px-8 pb-8 pt-6 bg-wm-card border-t border-wm-border/40">
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 text-center md:text-left">
             
-            {/* Avatar & User Details */}
-            <div className="flex flex-col md:flex-row items-center md:items-end gap-5">
-              {/* Avatar Container with glowing border */}
+            {/* Avatar & User Info Semuanya Terletak Bersih di Area Kartu */}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+              {/* Avatar Box */}
               <div className="relative group flex-shrink-0">
                 <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-wm-accent via-emerald-400 to-teal-300 opacity-70 blur-md group-hover:opacity-100 transition duration-500" />
                 <img
                   src={avatar || user.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
                   alt={user.username}
-                  className="relative h-32 w-32 rounded-2xl object-cover border-4 border-wm-card bg-wm-bg shadow-2xl"
+                  className="relative h-28 w-28 rounded-2xl object-cover border-2 border-wm-border bg-wm-bg shadow-xl"
                 />
               </div>
 
-              {/* User Info on Card Background Area */}
-              <div className="space-y-1.5 pt-2">
-                <div className="flex flex-col md:flex-row md:items-center gap-2.5 justify-center md:justify-start">
+              {/* Teks Username, Badge, Email, & Bio HANYA DI BAGIAN KARTU BERSIH */}
+              <div className="space-y-2 pt-1">
+                <div className="flex flex-col md:flex-row md:items-center gap-3 justify-center md:justify-start">
                   <h1 className="text-3xl font-black tracking-tight text-wm-texth">@{user.username}</h1>
                   {user.role === "admin" ? (
                     <span className="inline-flex items-center gap-1 self-center md:self-auto rounded-full bg-wm-accent/20 border border-wm-accent/40 px-3 py-0.5 text-xs font-black uppercase tracking-wider text-wm-accent shadow-sm">
@@ -181,14 +181,14 @@ export default function Profile() {
 
                 <p className="text-xs text-wm-text/60 font-medium">✉️ {user.email}</p>
 
-                <p className="text-sm text-wm-text/80 leading-relaxed max-w-xl font-medium pt-0.5">
+                <p className="text-sm text-wm-text/80 leading-relaxed max-w-xl font-medium pt-1">
                   "{user.bio || bio || "Member baru GabutHub! 👋"}"
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons on Card Area */}
-            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end">
+            {/* Action Buttons HANYA DI BAGIAN KARTU BERSIH */}
+            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end pt-2">
               <button
                 onClick={() => setEditMode(!editMode)}
                 className="flex items-center gap-2 rounded-2xl border border-wm-border bg-wm-bg px-5 py-3 text-xs font-bold text-wm-texth hover:text-wm-accent hover:border-wm-accent/40 transition cursor-pointer shadow-md"
