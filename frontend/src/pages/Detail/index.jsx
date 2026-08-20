@@ -35,14 +35,15 @@ export default function Detail() {
   const loadContentDetail = async () => {
     try {
       const res = await API.get(`/contents/${id}`);
-      setContent(res.data);
-      if (res.data.watchlist_status) setWatchlistStatus(res.data.watchlist_status);
-      if (res.data.personal_rating) setPersonalRating(res.data.personal_rating);
-      if (res.data.personal_notes) setPersonalNotes(res.data.personal_notes);
+      const data = res.data || {};
+      setContent(data);
+      if (data.watchlist_status) setWatchlistStatus(data.watchlist_status);
+      if (data.personal_rating) setPersonalRating(data.personal_rating);
+      if (data.personal_notes) setPersonalNotes(data.personal_notes);
 
       // Load similar contents by type
       try {
-        const resSimilar = await API.get(`/contents?type=${res.data.type}`);
+        const resSimilar = await API.get(`/contents?type=${data.type || "movie"}`);
         setSimilarContents((resSimilar.data || []).filter((item) => item.id !== parseInt(id)).slice(0, 6));
       } catch (err) {
         setSimilarContents([]);
@@ -84,7 +85,6 @@ export default function Detail() {
         notes: personalNotes || null,
       });
       toast.success("Watchlist berhasil diperbarui");
-      // Trigger global state sync
       await useWatchlistStore.getState().fetchWatchlist();
       loadContentDetail();
     } catch (e) {
@@ -102,7 +102,6 @@ export default function Detail() {
       setPersonalRating("");
       setPersonalNotes("");
       toast.success("Dihapus dari watchlist");
-      // Trigger global state sync
       await useWatchlistStore.getState().fetchWatchlist();
       loadContentDetail();
     } catch (e) {
@@ -148,7 +147,7 @@ export default function Detail() {
     }
     try {
       const res = await API.post(`/reviews/${reviewId}/like`);
-      toast.success(res.data.message);
+      toast.success(res.data?.message || "Berhasil disukai");
       loadContentDetail();
     } catch (e) {
       console.error(e);
@@ -162,7 +161,7 @@ export default function Detail() {
     }
     try {
       const res = await API.post(`/osts/${ostId}/like`);
-      toast.success(res.data.message);
+      toast.success(res.data?.message || "Berhasil disukai");
       loadContentDetail();
     } catch (e) {
       console.error(e);
@@ -176,7 +175,7 @@ export default function Detail() {
     }
     try {
       const res = await API.post(`/osts/${ostId}/vote`);
-      toast.success(res.data.message);
+      toast.success(res.data?.message || "Berhasil divote");
       loadContentDetail();
     } catch (e) {
       console.error(e);
@@ -193,7 +192,7 @@ export default function Detail() {
   if (loading) {
     return (
       <div className="flex h-[70vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-wm-mint border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-wm-accent border-t-transparent"></div>
       </div>
     );
   }
@@ -202,7 +201,7 @@ export default function Detail() {
     return (
       <div className="flex h-[70vh] flex-col items-center justify-center text-wm-text/50">
         <p>Konten tidak ditemukan</p>
-        <Link to="/" className="mt-4 text-wm-mint hover:underline">Kembali ke Home</Link>
+        <Link to="/" className="mt-4 text-wm-accent hover:underline font-bold">Kembali ke Home</Link>
       </div>
     );
   }
@@ -225,11 +224,11 @@ export default function Detail() {
         <div className="flex-1 space-y-6">
           <div>
             <div className="flex items-center gap-3">
-              <span className="rounded bg-wm-mint/10 px-2.5 py-0.5 text-xs font-black uppercase tracking-wider text-wm-mint border border-wm-mint/20 capitalize">
+              <span className="rounded bg-wm-accent/10 px-2.5 py-0.5 text-xs font-black uppercase tracking-wider text-wm-accent border border-wm-accent/20 capitalize">
                 {content.type}
               </span>
               <span className="text-wm-text/55 text-xs font-semibold">
-                Rilis: {new Date(content.release_date).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" })}
+                Rilis: {content.release_date ? new Date(content.release_date).toLocaleDateString("id-ID", { year: "numeric", month: "long", day: "numeric" }) : "2024"}
               </span>
             </div>
             <h2 className="text-3xl font-black mt-2 tracking-tight text-wm-texth">{content.title}</h2>
@@ -245,7 +244,7 @@ export default function Detail() {
               </div>
             </div>
             <div className="border-l border-wm-border/55 pl-6">
-              <p className="text-lg font-black leading-none text-wm-texth">{content.reviews.length}</p>
+              <p className="text-lg font-black leading-none text-wm-texth">{content.reviews?.length || 0}</p>
               <p className="text-[10px] text-wm-text/55 mt-1 uppercase font-bold tracking-wider">Total Review</p>
             </div>
           </div>
@@ -258,9 +257,9 @@ export default function Detail() {
           <div className="space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-wm-text/50">Genre</h4>
             <div className="flex flex-wrap gap-2">
-              {content.genres.map((genre) => (
+              {content.genres?.map((genre) => (
                 <span
-                  key={genre.id}
+                  key={genre.id || genre.name}
                   className="rounded-full border border-wm-border bg-wm-card px-3.5 py-1 text-xs font-bold text-wm-text"
                 >
                   {genre.name}
@@ -293,14 +292,14 @@ export default function Detail() {
       {/* Watchlist Status Panel */}
       <div className="rounded-2xl border border-wm-border bg-wm-card p-6 shadow-sm">
         <h3 className="text-sm font-bold uppercase tracking-widest text-wm-texth mb-4 flex items-center gap-2">
-          <Heart size={16} className="text-wm-coral" fill="currentColor" />
+          <Heart size={16} className="text-wm-accent" fill="currentColor" />
           <span>Saves & Catatan Watchlist</span>
         </h3>
 
         {!token ? (
           <div className="text-center py-4">
             <p className="text-sm text-wm-text/60">Anda harus masuk untuk menambahkan item ini ke watchlist pribadi Anda.</p>
-            <Link to="/login" className="mt-3 inline-block rounded-xl bg-wm-coral px-6 py-2.5 text-xs font-bold text-white hover:bg-wm-coral/90 cursor-pointer shadow-md shadow-wm-coral/10">
+            <Link to="/login" className="mt-3 inline-block rounded-xl bg-wm-accent px-6 py-2.5 text-xs font-bold text-black hover:bg-wm-accent/90 cursor-pointer shadow-md">
               Masuk Sekarang
             </Link>
           </div>
@@ -311,7 +310,7 @@ export default function Detail() {
               <select
                 value={watchlistStatus}
                 onChange={(e) => setWatchlistStatus(e.target.value)}
-                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-mint transition"
+                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-accent transition"
               >
                 <option value="">-- Pilih Status --</option>
                 <option value="Plan to Watch">Plan to Watch</option>
@@ -330,7 +329,7 @@ export default function Detail() {
                 value={personalRating}
                 onChange={(e) => setPersonalRating(e.target.value)}
                 placeholder="Skor kamu (1-10)..."
-                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-mint transition"
+                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-accent transition"
               />
             </div>
 
@@ -341,7 +340,7 @@ export default function Detail() {
                 value={personalNotes}
                 onChange={(e) => setPersonalNotes(e.target.value)}
                 placeholder="Catatan kecil pribadi..."
-                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-mint transition"
+                className="w-full rounded-xl border border-wm-border bg-wm-bg p-3.5 text-xs text-wm-texth font-bold outline-none focus:border-wm-accent transition"
               />
             </div>
 
@@ -349,7 +348,7 @@ export default function Detail() {
               {content.watchlist_status && (
                 <button
                   onClick={handleRemoveWatchlist}
-                  className="rounded-xl border border-wm-coral/30 bg-wm-coral/5 px-5 py-3 text-xs font-bold text-wm-coral hover:bg-wm-coral hover:text-white transition cursor-pointer"
+                  className="rounded-xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer"
                 >
                   Hapus Watchlist
                 </button>
@@ -357,7 +356,7 @@ export default function Detail() {
               <button
                 onClick={handleSaveWatchlist}
                 disabled={savingWatchlist || !watchlistStatus}
-                className="rounded-xl bg-wm-coral px-6 py-3 text-xs font-bold text-white hover:bg-wm-coral/95 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md shadow-wm-coral/10"
+                className="rounded-xl bg-wm-accent px-6 py-3 text-xs font-bold text-black hover:bg-wm-accent/95 active:scale-95 disabled:opacity-50 transition cursor-pointer shadow-md"
               >
                 {savingWatchlist ? "Menyimpan..." : "Simpan Perubahan"}
               </button>
@@ -366,19 +365,19 @@ export default function Detail() {
         )}
       </div>
 
-      {/* Soundtrack OST Spotify Mini Player Section */}
+      {/* Soundtrack OST Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* OST Section */}
         <div className="md:col-span-2 space-y-4">
           <h3 className="text-lg font-black flex items-center gap-2">
-            <Music className="text-wm-coral" size={20} />
+            <Music className="text-wm-accent" size={20} />
             <span> Soundtracks (OST)</span>
           </h3>
 
-          {content.osts.length > 0 ? (
+          {(content.osts?.length || 0) > 0 ? (
             <div className="rounded-2xl border border-wm-border bg-wm-card/40 p-3 divide-y divide-wm-border/40">
-              {content.osts.map((ost) => {
+              {content.osts?.map((ost) => {
                 const isCurrent = currentTrack && currentTrack.id === ost.id;
 
                 return (
@@ -388,7 +387,7 @@ export default function Detail() {
                         onClick={() => playTrack(ost)}
                         className={`flex h-10 w-10 items-center justify-center rounded-xl transition cursor-pointer ${
                           isCurrent
-                            ? "bg-wm-coral text-white shadow-md shadow-wm-coral/20 ring-2 ring-wm-coral/30"
+                            ? "bg-wm-accent text-black font-black shadow-md shadow-wm-accent/20 ring-2 ring-wm-accent/30"
                             : "bg-wm-bg text-wm-text hover:bg-wm-border hover:text-wm-texth border border-wm-border/50"
                         }`}
                       >
@@ -405,25 +404,25 @@ export default function Detail() {
                         onClick={() => handleLikeOst(ost.id)}
                         className={`flex items-center gap-1 text-2xs border rounded-lg px-2.5 py-1.5 transition cursor-pointer ${
                           ost.is_liked
-                            ? "border-wm-coral bg-wm-coral/10 text-wm-coral font-bold"
+                            ? "border-wm-accent bg-wm-accent/10 text-wm-accent font-bold"
                             : "border-wm-border bg-wm-bg text-wm-text hover:text-wm-texth"
                         }`}
                       >
                         <Heart size={12} fill={ost.is_liked ? "currentColor" : "none"} />
-                        <span>{ost.likes_count}</span>
+                        <span>{ost.likes_count || 0}</span>
                       </button>
 
                       <button
                         onClick={() => handleVoteOst(ost.id)}
                         className={`flex items-center gap-1 text-2xs border rounded-lg px-2.5 py-1.5 transition cursor-pointer ${
                           ost.is_voted
-                            ? "border-wm-mint bg-wm-mint/10 text-wm-mint font-bold"
+                            ? "border-wm-accent bg-wm-accent/10 text-wm-accent font-bold"
                             : "border-wm-border bg-wm-bg text-wm-text hover:text-wm-texth"
                         }`}
                         title="Pilih OST favorit"
                       >
                         <Sparkles size={12} />
-                        <span>Vote ({ost.votes_count})</span>
+                        <span>Vote ({ost.votes_count || 0})</span>
                       </button>
                     </div>
                   </div>
@@ -447,11 +446,11 @@ export default function Detail() {
             </div>
             <div className="flex justify-between border-b border-wm-border/50 pb-2">
               <span className="text-wm-text/50">Soundtrack Tracks:</span>
-              <span className="font-bold text-wm-texth">{content.osts.length}</span>
+              <span className="font-bold text-wm-texth">{content.osts?.length || 0}</span>
             </div>
             <div className="flex justify-between pb-1">
               <span className="text-wm-text/50">Total Ulasan:</span>
-              <span className="font-bold text-wm-texth">{content.reviews.length} ulasan</span>
+              <span className="font-bold text-wm-texth">{content.reviews?.length || 0} ulasan</span>
             </div>
           </div>
         </div>
@@ -479,7 +478,7 @@ export default function Detail() {
                   <select
                     value={newRating}
                     onChange={(e) => setNewRating(parseInt(e.target.value))}
-                    className="flex-1 rounded-xl border border-wm-border bg-wm-bg p-2.5 text-xs font-bold text-wm-texth outline-none focus:border-wm-mint transition"
+                    className="flex-1 rounded-xl border border-wm-border bg-wm-bg p-2.5 text-xs font-bold text-wm-texth outline-none focus:border-wm-accent transition"
                   >
                     {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map((n) => (
                       <option key={n} value={n}>{n} / 10</option>
@@ -495,7 +494,7 @@ export default function Detail() {
                     type="checkbox"
                     checked={isSpoiler}
                     onChange={(e) => setIsSpoiler(e.target.checked)}
-                    className="h-4 w-4 rounded border-wm-border bg-wm-bg text-wm-mint accent-wm-mint"
+                    className="h-4 w-4 rounded border-wm-border bg-wm-bg text-wm-accent accent-wm-accent"
                   />
                   <span>Mengandung Spoiler? (Ulasan akan diblur)</span>
                 </label>
@@ -509,12 +508,12 @@ export default function Detail() {
                 value={newReview}
                 onChange={(e) => setNewReview(e.target.value)}
                 placeholder="Bagikan pendapatmu tentang konten ini secara detail..."
-                className="w-full rounded-xl border border-wm-border bg-wm-bg p-4 text-xs text-wm-texth placeholder-wm-text/40 outline-none focus:border-wm-mint transition"
+                className="w-full rounded-xl border border-wm-border bg-wm-bg p-4 text-xs text-wm-texth placeholder-wm-text/40 outline-none focus:border-wm-accent transition"
               />
               <button
                 type="submit"
                 disabled={submittingReview}
-                className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-wm-coral text-white transition hover:scale-105 hover:bg-wm-coral/90 active:scale-95 disabled:opacity-50 cursor-pointer shadow-md shadow-wm-coral/15"
+                className="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-lg bg-wm-accent text-black transition hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer shadow-md font-bold"
               >
                 <Send size={14} />
               </button>
@@ -528,8 +527,8 @@ export default function Detail() {
 
         {/* Reviews List */}
         <div className="space-y-4">
-          {content.reviews.length > 0 ? (
-            content.reviews.map((rev) => {
+          {(content.reviews?.length || 0) > 0 ? (
+            content.reviews?.map((rev) => {
               const isUserSpoiler = rev.spoiler && !unblurredReviews[rev.id];
 
               return (
@@ -538,13 +537,13 @@ export default function Detail() {
                     {/* User profile */}
                     <div className="flex items-center gap-2.5">
                       <img
-                        src={rev.user.avatar}
+                        src={rev.user?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
                         alt=""
                         className="h-8 w-8 rounded-lg object-cover bg-wm-bg border border-wm-border"
                       />
                       <div>
-                        <p className="text-xs font-bold text-wm-texth">@{rev.user.username}</p>
-                        <p className="text-[10px] text-wm-text/50">{new Date(rev.created_at).toLocaleDateString("id-ID")}</p>
+                        <p className="text-xs font-bold text-wm-texth">@{rev.user?.username || "Pengguna"}</p>
+                        <p className="text-[10px] text-wm-text/50">{rev.created_at ? new Date(rev.created_at).toLocaleDateString("id-ID") : "Terbaru"}</p>
                       </div>
                     </div>
 
@@ -558,7 +557,7 @@ export default function Detail() {
                   {/* Review Text */}
                   <div className="relative border-t border-wm-border/50 pt-3">
                     {rev.spoiler && (
-                      <span className="mb-2 inline-block rounded bg-wm-coral/15 border border-wm-coral/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-coral">
+                      <span className="mb-2 inline-block rounded bg-red-500/15 border border-red-500/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-red-400">
                         Spoiler Alert
                       </span>
                     )}
@@ -571,7 +570,7 @@ export default function Detail() {
                       <div className="absolute inset-0 flex items-center justify-center bg-black/5 backdrop-blur-md rounded-lg">
                         <button
                           onClick={() => toggleShowSpoiler(rev.id)}
-                          className="rounded-xl border border-wm-coral/45 bg-wm-coral/10 px-4 py-2 text-2xs font-bold uppercase tracking-wider text-wm-coral hover:bg-wm-coral hover:text-white transition cursor-pointer shadow-sm"
+                          className="rounded-xl border border-wm-accent/45 bg-wm-accent/10 px-4 py-2 text-2xs font-bold uppercase tracking-wider text-wm-accent hover:bg-wm-accent hover:text-black transition cursor-pointer shadow-sm"
                         >
                           Tampilkan Spoiler
                         </button>
@@ -594,12 +593,12 @@ export default function Detail() {
                       onClick={() => handleLikeReview(rev.id)}
                       className={`flex items-center gap-1.5 text-3xs border rounded-lg px-2.5 py-1.5 transition cursor-pointer ${
                         rev.is_liked
-                          ? "border-wm-mint bg-wm-mint/15 text-wm-mint font-bold"
+                          ? "border-wm-accent bg-wm-accent/15 text-wm-accent font-bold"
                           : "border-wm-border bg-wm-bg text-wm-text hover:text-wm-texth"
                       }`}
                     >
                       <ThumbsUp size={12} />
-                      <span>Suka ({rev.likes_count})</span>
+                      <span>Suka ({rev.likes_count || 0})</span>
                     </button>
                   </div>
                 </div>
@@ -615,7 +614,7 @@ export default function Detail() {
       </div>
 
       {/* ─────── REKOMENDASI KONTEN SERUPA ─────── */}
-      {similarContents.length > 0 && (
+      {(similarContents?.length || 0) > 0 && (
         <div className="space-y-4 pt-6 border-t border-wm-border/50">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-black text-wm-texth flex items-center gap-2">
@@ -627,7 +626,7 @@ export default function Detail() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {similarContents.map((sim) => (
+            {similarContents?.map((sim) => (
               <Link to={`/detail/${sim.id}`} key={sim.id} className="group block">
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-2 border border-wm-border bg-wm-card shadow-sm">
                   <img

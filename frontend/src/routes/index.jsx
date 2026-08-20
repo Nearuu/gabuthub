@@ -40,6 +40,10 @@ const router = createBrowserRouter([
                 element: <TierList />,
             },
             {
+                path: "tier-list",
+                element: <TierList />,
+            },
+            {
                 path: "voting",
                 element: <Voting />,
             },
