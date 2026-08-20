@@ -79,17 +79,6 @@ const filterMockContents = (url) => {
 // Response Interceptor: Ensure data is ALWAYS populated with full 68 contents, polls, osts & posts!
 API.interceptors.response.use(
   (response) => {
-    const config = response.config || {};
-    const url = config.url || "";
-    if (url.includes("/contents") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
-      return { ...response, data: MOCK_CONTENTS };
-    }
-    if (url.includes("/polls") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
-      return { ...response, data: MOCK_POLLS };
-    }
-    if (url.includes("/posts") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
-      return { ...response, data: MOCK_POSTS };
-    }
     return response;
   },
   (error) => {
@@ -109,11 +98,9 @@ API.interceptors.response.use(
       return Promise.resolve({ data: MOCK_HOT_TAKES, status: 200, statusText: "OK", headers: {}, config });
     } else if (url.includes("/watchlist")) {
       return Promise.resolve({ data: [], status: 200, statusText: "OK", headers: {}, config });
-    } else if (url.includes("/users") || url.includes("/admin/users")) {
-      return Promise.resolve({ data: MOCK_USERS, status: 200, statusText: "OK", headers: {}, config });
     }
 
-    return Promise.resolve({ data: MOCK_CONTENTS, status: 200, statusText: "OK", headers: {}, config });
+    return Promise.reject(error);
   }
 );
 
