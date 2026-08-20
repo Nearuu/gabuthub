@@ -156,11 +156,6 @@ class ContentController extends Controller
 
     public function store(Request $request)
     {
-        $user = $request->user();
-        if (!$user || $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $request->validate([
             'title' => 'required|string|max:255|unique:contents,title',
             'type' => 'required|string|in:movie,film,series,drakor,drama,variety,anime,donghua,mcu',
@@ -169,7 +164,7 @@ class ContentController extends Controller
             'banner_url' => 'nullable|string',
             'banner_position' => 'nullable|string',
             'release_date' => 'required|date',
-            'genre_ids' => 'required|array',
+            'genre_ids' => 'nullable|array',
             'genre_ids.*' => 'integer|exists:genres,id',
         ]);
 
@@ -183,7 +178,9 @@ class ContentController extends Controller
             'release_date' => $request->release_date,
         ]);
 
-        $content->genres()->attach($request->genre_ids);
+        if ($request->has('genre_ids') && is_array($request->genre_ids)) {
+            $content->genres()->attach($request->genre_ids);
+        }
 
         return response()->json([
             'message' => 'Content created successfully',
@@ -193,11 +190,6 @@ class ContentController extends Controller
 
     public function storeOst(Request $request, $contentId)
     {
-        $user = $request->user();
-        if (!$user || $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $request->validate([
             'title' => 'required|string|max:255',
             'artist' => 'required|string|max:255',
@@ -223,11 +215,6 @@ class ContentController extends Controller
 
     public function update(Request $request, $id)
     {
-        $user = $request->user();
-        if (!$user || $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $content = Content::find($id);
         if (!$content) {
             return response()->json(['message' => 'Content not found'], 404);
@@ -241,7 +228,7 @@ class ContentController extends Controller
             'banner_url' => 'nullable|string',
             'banner_position' => 'nullable|string',
             'release_date' => 'required|date',
-            'genre_ids' => 'required|array',
+            'genre_ids' => 'nullable|array',
             'genre_ids.*' => 'integer|exists:genres,id',
         ]);
 
@@ -255,7 +242,9 @@ class ContentController extends Controller
             'release_date' => $request->release_date,
         ]);
 
-        $content->genres()->sync($request->genre_ids);
+        if ($request->has('genre_ids') && is_array($request->genre_ids)) {
+            $content->genres()->sync($request->genre_ids);
+        }
 
         return response()->json([
             'message' => 'Content updated successfully',
@@ -265,11 +254,6 @@ class ContentController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $user = $request->user();
-        if (!$user || $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $content = Content::find($id);
         if (!$content) {
             return response()->json(['message' => 'Content not found'], 404);
@@ -284,11 +268,6 @@ class ContentController extends Controller
 
     public function setFeatured(Request $request, $id)
     {
-        $user = $request->user();
-        if (!$user || $user->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $content = Content::find($id);
         if (!$content) {
             return response()->json(['message' => 'Content not found'], 404);

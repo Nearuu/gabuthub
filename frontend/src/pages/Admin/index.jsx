@@ -138,7 +138,7 @@ export default function Admin() {
       if (stored) customContents = JSON.parse(stored);
     } catch (e) {}
 
-    const combined = [...customContents, ...apiContents];
+    const combined = [...apiContents, ...customContents];
     setContents(combined);
     setLoadingList(false);
 
@@ -530,7 +530,8 @@ export default function Admin() {
       poster_url: posterUrl,
       banner_url: bannerUrl || "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200",
       banner_position: bannerPosition || "center top",
-      release_date: releaseDate,
+      release_date: releaseDate || new Date().toISOString().slice(0, 10),
+      genre_ids: selectedGenres.length > 0 ? selectedGenres : [1],
       genres: selectedGenres.map(gId => ({ id: gId, name: "Genre " + gId })),
       avg_rating: 10.0,
       reviews_count: 1,
