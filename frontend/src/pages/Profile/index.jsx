@@ -132,9 +132,9 @@ export default function Profile() {
       {/* ────── PREMIUM BANNER & USER PROFILE HEADER ────── */}
       <div className="relative overflow-hidden rounded-3xl border border-wm-border bg-wm-card shadow-2xl">
         
-        {/* 1. MURNI COVER BANNER ATAS (BERSIH DARI TEKS APAPUN) */}
+        {/* 1. COVER BANNER SAMPUL ATAS */}
         <div 
-          className="h-52 w-full bg-cover bg-center relative transition-all duration-300"
+          className="h-44 w-full bg-cover bg-center relative transition-all duration-300"
           style={{
             backgroundImage: coverUrl 
               ? `url(${coverUrl})`
@@ -148,11 +148,11 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* 2. MURNI AREA KARTU BERSIH (100% TERPISAH DI BAWAH BANNER) */}
-        <div className="px-8 pb-8 pt-6 bg-wm-card border-t border-wm-border/40">
+        {/* 2. AREA KARTU UTAMA DENGAN PADDING LEGA (TEKS NAMA DITURUNKAN KE BAWAH AREA BERSIH) */}
+        <div className="px-8 pb-8 pt-8 bg-wm-card border-t border-wm-border/40">
           <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-6 text-center md:text-left">
             
-            {/* Avatar & User Info Semuanya Terletak Bersih di Area Kartu */}
+            {/* Avatar & Detail User */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar Box */}
               <div className="relative group flex-shrink-0">
@@ -164,8 +164,8 @@ export default function Profile() {
                 />
               </div>
 
-              {/* Teks Username, Badge, Email, & Bio HANYA DI BAGIAN KARTU BERSIH */}
-              <div className="space-y-2 pt-1">
+              {/* Teks Username Diturunkan Ke Bawah Di Area Kartu Bersih */}
+              <div className="space-y-2 pt-2">
                 <div className="flex flex-col md:flex-row md:items-center gap-3 justify-center md:justify-start">
                   <h1 className="text-3xl font-black tracking-tight text-wm-texth">@{user.username}</h1>
                   {user.role === "admin" ? (
@@ -187,8 +187,8 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Action Buttons HANYA DI BAGIAN KARTU BERSIH */}
-            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end pt-2">
+            {/* Action Buttons Diturunkan Ke Bawah Di Area Kartu Bersih */}
+            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end pt-3">
               <button
                 onClick={() => setEditMode(!editMode)}
                 className="flex items-center gap-2 rounded-2xl border border-wm-border bg-wm-bg px-5 py-3 text-xs font-bold text-wm-texth hover:text-wm-accent hover:border-wm-accent/40 transition cursor-pointer shadow-md"
