@@ -646,7 +646,46 @@ export default function Admin() {
     setPreviewUrl("");
   };
 
-  // 2.  USER CRUD HANDLERS
+  // Admin Direct User Creation
+  const [newAdminUsername, setNewAdminUsername] = useState("");
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminRole, setNewAdminRole] = useState("user");
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  const handleCreateUserByAdmin = async (e) => {
+    e.preventDefault();
+    if (!newAdminUsername.trim() || !newAdminEmail.trim()) {
+      toast.error("Username dan Email wajib diisi!");
+      return;
+    }
+
+    const newUserObj = {
+      id: Date.now(),
+      username: newAdminUsername.trim(),
+      email: newAdminEmail.trim().toLowerCase(),
+      role: newAdminRole,
+      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${newAdminUsername}`,
+      created_at: new Date().toISOString().slice(0, 10),
+      bio: "Member GabutHub terdaftar oleh Admin"
+    };
+
+    try {
+      await API.post("/admin/users", newUserObj);
+    } catch (err) {}
+
+    // Save to persistent user registry
+    try {
+      const stored = localStorage.getItem("registered_users_list");
+      const list = stored ? JSON.parse(stored) : [];
+      list.push(newUserObj);
+      localStorage.setItem("registered_users_list", JSON.stringify(list));
+    } catch (err) {}
+
+    setUsersList(prev => [...prev, newUserObj]);
+    toast.success(`Akun @${newUserObj.username} berhasil dibuat oleh Admin!`);
+    setShowAddUserModal(false);
+  };
+
   const handleToggleUserRole = async (targetUser) => {
     if (targetUser.id === user.id) {
       toast.error("Anda tidak bisa mengubah role akun sendiri!");
@@ -1640,10 +1679,77 @@ export default function Admin() {
         {/* ======================= SECTION 3: USERS MANAGEMENT ======================= */}
         {activeSection === "users" && (
           <div className="space-y-6">
-            <div className="border-b border-wm-border/50 pb-4">
-              <h2 className="text-xl font-black text-wm-texth"> Manajemen Pengguna</h2>
-              <p className="text-2xs text-wm-text/60 mt-1">Lihat profil seluruh user, atur hak akses admin, atau banned/hapus akun pengguna.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-wm-border/50 pb-4">
+              <div>
+                <h2 className="text-xl font-black text-wm-texth"> Manajemen Pengguna ({usersList.length} User Terdaftar)</h2>
+                <p className="text-2xs text-wm-text/60 mt-1">Lihat profil seluruh user, atur hak akses admin, atau banned/hapus akun pengguna.</p>
+              </div>
+
+              <button
+                onClick={() => setShowAddUserModal(!showAddUserModal)}
+                className="flex items-center gap-2 rounded-xl bg-wm-accent px-4 py-2.5 text-xs font-black text-black hover:bg-wm-accent-hover transition cursor-pointer shadow-md shadow-wm-accent/15"
+              >
+                <UserPlus size={16} />
+                <span>+ Buat Akun User Baru</span>
+              </button>
             </div>
+
+            {/* ADD USER FORM MODAL */}
+            {showAddUserModal && (
+              <form onSubmit={handleCreateUserByAdmin} className="rounded-2xl border border-wm-border bg-wm-card p-5 space-y-4 shadow-lg animate-in fade-in slide-in-from-top-3">
+                <h3 className="text-sm font-black text-wm-texth flex items-center gap-2 border-b border-wm-border pb-2">
+                  <UserPlus size={16} className="text-wm-accent" /> Registrasi Akun Pengguna Baru Oleh Admin
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-wm-text/70 mb-1">Username</label>
+                    <input
+                      type="text"
+                      value={newAdminUsername}
+                      onChange={(e) => setNewAdminUsername(e.target.value)}
+                      placeholder="Contoh: user_baru"
+                      className="w-full rounded-xl border border-wm-border bg-wm-bg p-2.5 text-xs text-wm-texth outline-none focus:border-wm-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-wm-text/70 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={newAdminEmail}
+                      onChange={(e) => setNewAdminEmail(e.target.value)}
+                      placeholder="userbaru@gmail.com"
+                      className="w-full rounded-xl border border-wm-border bg-wm-bg p-2.5 text-xs text-wm-texth outline-none focus:border-wm-accent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-wm-text/70 mb-1">Role Akun</label>
+                    <select
+                      value={newAdminRole}
+                      onChange={(e) => setNewAdminRole(e.target.value)}
+                      className="w-full rounded-xl border border-wm-border bg-wm-bg p-2.5 text-xs text-wm-texth outline-none focus:border-wm-accent"
+                    >
+                      <option value="user">User Biasa</option>
+                      <option value="admin">Administrator</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(false)}
+                    className="rounded-xl border border-wm-border px-4 py-2 text-xs font-bold text-wm-text hover:bg-wm-bg transition cursor-pointer"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-wm-accent px-5 py-2 text-xs font-black text-black hover:bg-wm-accent-hover transition cursor-pointer shadow"
+                  >
+                    Simpan & Daftarkan Akun
+                  </button>
+                </div>
+              </form>
+            )}
 
             <div className="relative max-w-sm">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-wm-text/40" />
