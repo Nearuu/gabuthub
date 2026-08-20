@@ -351,72 +351,7 @@ class DatabaseSeeder extends Seeder
             $contentModel->genres()->sync($genreIds);
         }
 
-        // 5. Seed OSTs
-        $queenOfTears = Content::where('title', 'Queen of Tears')->first();
-        if ($queenOfTears) {
-            Ost::firstOrCreate(
-                ['title' => 'Love You With All My Heart', 'content_id' => $queenOfTears->id],
-                [
-                    'artist' => 'Crush',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-                ]
-            );
-            Ost::firstOrCreate(
-                ['title' => 'The Reasons of My Smiles', 'content_id' => $queenOfTears->id],
-                [
-                    'artist' => 'BSS (SEVENTEEN)',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
-                ]
-            );
-            Ost::firstOrCreate(
-                ['title' => 'From Bottom of My Heart', 'content_id' => $queenOfTears->id],
-                [
-                    'artist' => 'Kim Na Young',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
-                ]
-            );
-        }
-
-        $cloy = Content::where('title', 'Crash Landing on You')->first();
-        if ($cloy) {
-            Ost::firstOrCreate(
-                ['title' => 'Sunset', 'content_id' => $cloy->id],
-                [
-                    'artist' => 'Davichi',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'
-                ]
-            );
-            Ost::firstOrCreate(
-                ['title' => 'Here I Am Again', 'content_id' => $cloy->id],
-                [
-                    'artist' => 'Baek Yerin',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
-                ]
-            );
-        }
-
-        $demonSlayer = Content::where('title', 'Demon Slayer: Kimetsu no Yaiba')->first();
-        if ($demonSlayer) {
-            Ost::firstOrCreate(
-                ['title' => 'Gurenge', 'content_id' => $demonSlayer->id],
-                [
-                    'artist' => 'LiSA',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3'
-                ]
-            );
-        }
-
-        $interstellar = Content::where('title', 'Interstellar')->first();
-        if ($interstellar) {
-            Ost::firstOrCreate(
-                ['title' => 'Cornfield Chase', 'content_id' => $interstellar->id],
-                [
-                    'artist' => 'Hans Zimmer',
-                    'preview_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3'
-                ]
-            );
-        }
-
+        // 5. Seed OSTs (Disabled - User will add OSTs manually)
         // 6. Seed Polls
         $poll1 = Poll::firstOrCreate(
             ['title' => 'Best Villain of the Decade'],
