@@ -1,0 +1,20 @@
+# Node / React
+**/node_modules/
+**/dist/
+**/.vite/
+**/npm-debug.log*
+
+# Laravel
+**/vendor/
+**/storage/*.key
+**/storage/oauth-*.key
+**/storage/logs/*.log
+**/.env
+**/.env.backup
+**/.env.production
+
+# IDE / System
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
