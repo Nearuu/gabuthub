@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Trash2, Star, Eye, Lock, KeyRound } from "lucide-react";
 import useAuthStore from "../../store/authStore";
+import useWatchlistStore from "../../store/watchlistStore";
 import API from "../../services/api";
 import toast from "react-hot-toast";
 
@@ -9,17 +10,11 @@ const STATUS_TABS = ["Semua", "Plan to Watch", "Watching", "Completed", "Dropped
 
 export default function Watchlist() {
   const { token, user } = useAuthStore();
+  const { watchlistItems, fetchWatchlist, removeFromWatchlist, loading } = useWatchlistStore();
   const navigate = useNavigate();
 
-  const [watchlist, setWatchlist] = useState([]);
-  const [allContents, setAllContents] = useState([]);
   const [selectedTab, setSelectedTab] = useState("Semua");
-  const [loading, setLoading] = useState(true);
-
-  const getWatchlistKey = () => {
-    if (!user) return "watchlist_guest";
-    return `watchlist_user_${user.id || user.username || user.email}`;
-  };
+  const [allContents, setAllContents] = useState([]);
 
   // Fetch Database Contents to ensure 100% matching real posters
   useEffect(() => {
@@ -34,8 +29,13 @@ export default function Watchlist() {
     fetchCatalog();
   }, []);
 
+  useEffect(() => {
+    if (token && user) {
+      fetchWatchlist();
+    }
+  }, [token, user?.username]);
+
   const getRealPosterFromDatabase = (item) => {
-    // 1. Direct poster_url on item if valid
     if (item.poster_url && item.poster_url.startsWith("http") && !item.poster_url.includes("unsplash")) {
       return item.poster_url;
     }
@@ -43,7 +43,6 @@ export default function Watchlist() {
       return item.content.poster_url;
     }
 
-    // 2. Match with real database contents array by ID or title
     const targetId = item.content_id || item.id;
     const match = allContents.find((c) => 
       String(c.id) === String(targetId) || 
@@ -54,7 +53,6 @@ export default function Watchlist() {
       return match.poster_url;
     }
 
-    // 3. Exact Database Title fallback match
     const titleLower = (item.title || item.content?.title || "").toLowerCase();
     if (titleLower.includes("queen of tears")) return "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
     if (titleLower.includes("crash landing")) return "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg";
@@ -63,78 +61,6 @@ export default function Watchlist() {
     if (titleLower.includes("interstellar")) return "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg";
 
     return item.poster_url || "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
-  };
-
-  const loadWatchlist = async () => {
-    setLoading(true);
-    const key = getWatchlistKey();
-
-    try {
-      const res = await API.get("/watchlist");
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        setWatchlist(res.data);
-        setLoading(false);
-        return;
-      }
-    } catch (e) {}
-
-    // Per-user local storage isolation
-    const stored = localStorage.getItem(key);
-    if (stored) {
-      try {
-        setWatchlist(JSON.parse(stored));
-      } catch (e) {
-        setWatchlist([]);
-      }
-    } else {
-      // MANDATORY RULE: ALL USER ACCOUNTS (except admin demo) MUST BE 100% EMPTY DEFAULT!
-      if (user?.role === "admin" || user?.username === "admin") {
-        const adminSeed = [
-          {
-            id: 1,
-            content_id: 1,
-            title: "Queen of Tears",
-            type: "Drakor",
-            poster_url: "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg",
-            pivot: { status: "Completed", personal_rating: 10 }
-          },
-          {
-            id: 2,
-            content_id: 2,
-            title: "Crash Landing on You",
-            type: "Drakor",
-            poster_url: "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg",
-            pivot: { status: "Watching", personal_rating: 9 }
-          }
-        ];
-        localStorage.setItem(key, JSON.stringify(adminSeed));
-        setWatchlist(adminSeed);
-      } else {
-        // STRICT EMPTY WATCHLIST FOR NEW USERS
-        localStorage.setItem(key, JSON.stringify([]));
-        setWatchlist([]);
-      }
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (token && user) {
-      loadWatchlist();
-    } else {
-      setLoading(false);
-    }
-  }, [token, user?.username]);
-
-  const handleDelete = async (contentId) => {
-    try {
-      await API.delete(`/watchlist/${contentId}`);
-    } catch (e) {}
-
-    const updated = watchlist.filter((item) => (item.content_id || item.id) !== contentId);
-    setWatchlist(updated);
-    localStorage.setItem(getWatchlistKey(), JSON.stringify(updated));
-    toast.success("Berhasil dihapus dari Watchlist pribadi Anda!");
   };
 
   // ────── STATE: UNAUTHENTICATED (BELUM LOGIN) ──────
@@ -170,7 +96,7 @@ export default function Watchlist() {
     );
   }
 
-  const listToUse = Array.isArray(watchlist) ? watchlist : [];
+  const listToUse = Array.isArray(watchlistItems) ? watchlistItems : [];
 
   // Filter watchlist based on tab
   const filteredList = listToUse.filter((item) => {
@@ -189,7 +115,7 @@ export default function Watchlist() {
             <Heart className="text-wm-accent" size={24} fill="currentColor" />
             <span>Watchlist @{user.username}</span>
           </h2>
-          <p className="text-xs text-wm-text/60">Koleksi tontonan pribadi yang Anda simpan di akun ini.</p>
+          <p className="text-xs text-wm-text/60">Koleksi tontonan pribadi yang Anda simpan di akun ini ({listToUse.length} film/drakor).</p>
         </div>
       </div>
 
@@ -250,7 +176,7 @@ export default function Watchlist() {
                     <Eye size={14} /> Detail Film
                   </Link>
                   <button
-                    onClick={() => handleDelete(item.content_id || item.id)}
+                    onClick={() => removeFromWatchlist(item.content_id || item.id)}
                     className="text-red-400 hover:text-red-300 p-1 rounded-lg transition cursor-pointer"
                     title="Hapus dari Watchlist"
                   >
