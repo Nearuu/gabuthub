@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ThumbsUp, MessageSquare, Image, Send, Heart, Eye, Users } from "lucide-react";
+import { ThumbsUp, MessageSquare, Image, Send, Heart, Eye, Users, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../store/authStore";
 import API from "../../services/api";
@@ -49,6 +49,18 @@ export default function Community() {
   useEffect(() => {
     loadPosts();
   }, [selectedType, token]);
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Apakah kamu yakin ingin menghapus postingan ini?")) return;
+    try {
+      await API.delete(`/posts/${postId}`);
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      toast.success("Postingan berhasil dihapus!");
+    } catch (e) {
+      console.error(e);
+      toast.error("Gagal menghapus postingan");
+    }
+  };
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -239,9 +251,20 @@ export default function Community() {
                     </div>
                   </div>
 
-                  <span className="rounded bg-wm-bg border border-wm-border px-2 py-0.5 text-3xs font-bold text-wm-text capitalize">
-                    {badgeLabel}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded bg-wm-bg border border-wm-border px-2 py-0.5 text-3xs font-bold text-wm-text capitalize">
+                      {badgeLabel}
+                    </span>
+                    {(user?.role === "admin" || user?.username === post.user?.username || user?.email === post.user?.email || !post.user) && (
+                      <button
+                        onClick={() => handleDeletePost(post.id)}
+                        title="Hapus Postingan"
+                        className="p-1 text-wm-text/40 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition cursor-pointer"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Content */}
