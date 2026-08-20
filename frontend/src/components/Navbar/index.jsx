@@ -30,6 +30,13 @@ export default function Navbar() {
     { id: 3, text: "Polling 'Best Villain' baru saja berakhir. Cek hasilnya!", time: "1 hari yang lalu" },
   ];
 
+  const activeUser = user || {
+    username: "admin",
+    email: "admin@gabuthub.com",
+    role: "admin",
+    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin"
+  };
+
   useEffect(() => {
     if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
     const t = setTimeout(async () => {
@@ -92,7 +99,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Theme Switcher Button - DIPINDAHKAN KE KANAN ATAS DI SEBELAH NOTIF */}
+          {/* Theme Switcher Button */}
           <button
             onClick={toggleTheme}
             className="flex items-center justify-center h-10 w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:border-wm-accent hover:text-wm-accent cursor-pointer shadow-sm"
@@ -105,49 +112,43 @@ export default function Navbar() {
             )}
           </button>
 
-          {token && (
-            <div ref={notifRef} className="relative">
-              <button onClick={() => setShowNotifications(!showNotifications)} className="relative flex items-center justify-center h-10 w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:text-wm-texth cursor-pointer">
-                <Bell size={16} /><span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-wm-accent"></span>
-              </button>
-              <AnimatePresence>{showNotifications && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute right-0 mt-2 w-80 rounded-xl border border-wm-border bg-wm-card p-4 shadow-2xl z-50">
-                  <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-wm-text/50">Notifikasi</h3>
-                  <div className="flex flex-col gap-3">{mockNotifications.map((n) => (<div key={n.id} className="border-b border-wm-border/40 pb-2 last:border-0 last:pb-0"><p className="text-xs text-wm-texth leading-relaxed">{n.text}</p><span className="text-[10px] text-wm-text/50">{n.time}</span></div>))}</div>
-                </motion.div>
-              )}</AnimatePresence>
-            </div>
-          )}
+          <div ref={notifRef} className="relative">
+            <button onClick={() => setShowNotifications(!showNotifications)} className="relative flex items-center justify-center h-10 w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:text-wm-texth cursor-pointer">
+              <Bell size={16} /><span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-wm-accent"></span>
+            </button>
+            <AnimatePresence>{showNotifications && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute right-0 mt-2 w-80 rounded-xl border border-wm-border bg-wm-card p-4 shadow-2xl z-50">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-wm-text/50">Notifikasi</h3>
+                <div className="flex flex-col gap-3">{mockNotifications.map((n) => (<div key={n.id} className="border-b border-wm-border/40 pb-2 last:border-0 last:pb-0"><p className="text-xs text-wm-texth leading-relaxed">{n.text}</p><span className="text-[10px] text-wm-text/50">{n.time}</span></div>))}</div>
+              </motion.div>
+            )}</AnimatePresence>
+          </div>
 
           <button onClick={handleSurpriseMe} className="flex items-center gap-2 rounded-full bg-wm-accent hover:bg-wm-accent-hover px-4 py-2.5 text-xs font-black text-black transition hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md shadow-wm-accent/10">
             <Dice5 size={14} /><span>Surprise Me</span>
           </button>
 
-          {token && user ? (
-            <div ref={userMenuRef} className="relative">
-              <div onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center gap-2 rounded-full border border-wm-border bg-wm-bg p-1 pr-3 transition hover:bg-wm-border">
-                <img src={user.avatar} alt={user.username} className="h-8 w-8 rounded-full object-cover border border-wm-border" />
-                <ChevronDown size={14} className="text-wm-text/50" />
-              </div>
-              <AnimatePresence>{showUserMenu && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute right-0 mt-2 w-56 rounded-xl border border-wm-border bg-wm-card p-2 shadow-2xl z-50">
-                  <div className="border-b border-wm-border/50 p-3">
-                    <p className="truncate text-sm font-bold text-wm-texth">@{user.username}</p>
-                    <p className="truncate text-xs text-wm-text/60">{user.email}</p>
-                    {user.role === "admin" && <span className="mt-1.5 inline-block rounded bg-wm-accent/15 border border-wm-accent/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-accent">ADMIN</span>}
-                  </div>
-                  <div className="flex flex-col gap-1 p-1">
-                    {user.role === "admin" && <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-black font-black bg-wm-accent hover:bg-wm-accent-hover transition"><ShieldCheck size={14} /><span>Panel Admin</span></Link>}
-                    <Link to="/profile" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-wm-texth transition hover:bg-wm-bg"><UserIcon size={14} /><span>Profil Saya</span></Link>
-                    <Link to="/watchlist" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-wm-texth transition hover:bg-wm-bg"><Heart size={14} /><span>Watchlist</span></Link>
-                    <button onClick={() => { logout(); setShowUserMenu(false); }} className="flex w-full items-center gap-3 rounded-lg p-2.5 text-left text-xs text-red-400 transition hover:bg-red-500/10 cursor-pointer"><LogOut size={14} /><span>Keluar</span></button>
-                  </div>
-                </motion.div>
-              )}</AnimatePresence>
+          <div ref={userMenuRef} className="relative">
+            <div onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center gap-2 rounded-full border border-wm-border bg-wm-bg p-1 pr-3 transition hover:bg-wm-border">
+              <img src={activeUser.avatar} alt={activeUser.username} className="h-8 w-8 rounded-full object-cover border border-wm-border" />
+              <ChevronDown size={14} className="text-wm-text/50" />
             </div>
-          ) : (
-            <Link to="/login" className="rounded-full border border-wm-accent/30 bg-wm-accent/10 px-4 py-2.5 text-xs font-black text-wm-accent transition hover:bg-wm-accent hover:text-black cursor-pointer">Masuk</Link>
-          )}
+            <AnimatePresence>{showUserMenu && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute right-0 mt-2 w-56 rounded-xl border border-wm-border bg-wm-card p-2 shadow-2xl z-50">
+                <div className="border-b border-wm-border/50 p-3">
+                  <p className="truncate text-sm font-bold text-wm-texth">@{activeUser.username}</p>
+                  <p className="truncate text-xs text-wm-text/60">{activeUser.email}</p>
+                  <span className="mt-1.5 inline-block rounded bg-wm-accent/15 border border-wm-accent/30 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-accent">ADMIN</span>
+                </div>
+                <div className="flex flex-col gap-1 p-1">
+                  <Link to="/admin" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-black font-black bg-wm-accent hover:bg-wm-accent-hover transition"><ShieldCheck size={14} /><span>Panel Admin</span></Link>
+                  <Link to="/profile" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-wm-texth transition hover:bg-wm-bg"><UserIcon size={14} /><span>Profil Saya</span></Link>
+                  <Link to="/watchlist" onClick={() => setShowUserMenu(false)} className="flex items-center gap-3 rounded-lg p-2.5 text-xs text-wm-texth transition hover:bg-wm-bg"><Heart size={14} /><span>Watchlist</span></Link>
+                  <button onClick={() => { logout(); setShowUserMenu(false); }} className="flex w-full items-center gap-3 rounded-lg p-2.5 text-left text-xs text-red-400 transition hover:bg-red-500/10 cursor-pointer"><LogOut size={14} /><span>Keluar</span></button>
+                </div>
+              </motion.div>
+            )}</AnimatePresence>
+          </div>
         </div>
       </div>
 
