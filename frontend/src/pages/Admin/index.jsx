@@ -312,53 +312,28 @@ export default function Admin() {
   const [editBadgeId, setEditBadgeId] = useState(null);
   const [submittingBadge, setSubmittingBadge] = useState(false);
 
-  const DEFAULT_BADGES = [
-    { id: 1, name: "Drakor Addict", description: "Review minimal 20 drakor di GabutHub", icon: "👑" },
-    { id: 2, name: "Movie Master", description: "Nonton 100 film kelas dunia", icon: "🎬" },
-    { id: 3, name: "Tier Legend", description: "Membuat 10 Tier List populer", icon: "🏆" },
-    { id: 4, name: "Top Reviewer", description: "Menulis 50 ulasan berkualitas", icon: "✍️" },
-    { id: 5, name: "Meme Lord", description: "Posting 50 meme di Komunitas", icon: "🔥" },
-    { id: 6, name: "Top Voter", description: "Partisipasi vote 500 kali", icon: "🎯" }
-  ];
-
   const loadReviews = async () => {
     try {
       const res = await API.get("/admin/reviews");
-      if (Array.isArray(res.data) && res.data.length > 0) {
-        setAdminReviews(res.data);
-        return;
-      }
-    } catch (e) {}
-
-    // Fallback: Aggregate reviews from all contents catalog
-    try {
-      const cRes = await API.get("/contents");
-      const cData = Array.isArray(cRes.data) ? cRes.data : [];
-      const aggregated = [];
-      cData.forEach(c => {
-        if (c.reviews && Array.isArray(c.reviews)) {
-          c.reviews.forEach(r => {
-            aggregated.push({
-              ...r,
-              content_title: c.title,
-              content_poster: c.poster_url
-            });
-          });
-        }
-      });
-      setAdminReviews(aggregated);
+      setAdminReviews(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       setAdminReviews([]);
     }
   };
 
   const loadBadges = async () => {
+    let customBadges = [];
+    try {
+      const stored = localStorage.getItem("gabuthub_custom_badges");
+      if (stored) customBadges = JSON.parse(stored);
+    } catch (e) {}
+
     try {
       const res = await API.get("/admin/badges");
-      const data = Array.isArray(res.data) && res.data.length > 0 ? res.data : DEFAULT_BADGES;
-      setAdminBadges(data);
+      const apiB = Array.isArray(res.data) ? res.data : [];
+      setAdminBadges([...customBadges, ...apiB]);
     } catch (e) {
-      setAdminBadges(DEFAULT_BADGES);
+      setAdminBadges(customBadges);
     }
   };
 
@@ -393,6 +368,18 @@ export default function Admin() {
       }
     } catch (e) {}
 
+    // Save to persistent custom badges
+    try {
+      const stored = localStorage.getItem("gabuthub_custom_badges");
+      let list = stored ? JSON.parse(stored) : [];
+      if (editBadgeId) {
+        list = list.map(b => b.id === editBadgeId ? newB : b);
+      } else {
+        list.unshift(newB);
+      }
+      localStorage.setItem("gabuthub_custom_badges", JSON.stringify(list));
+    } catch (e) {}
+
     if (editBadgeId) {
       setAdminBadges(prev => prev.map(b => b.id === editBadgeId ? newB : b));
       toast.success("Badge berhasil diperbarui!");
@@ -413,6 +400,16 @@ export default function Admin() {
     try {
       await API.delete(`/admin/badges/${id}`);
     } catch (e) {}
+
+    try {
+      const stored = localStorage.getItem("gabuthub_custom_badges");
+      if (stored) {
+        const list = JSON.parse(stored);
+        const updated = list.filter(b => b.id !== id);
+        localStorage.setItem("gabuthub_custom_badges", JSON.stringify(updated));
+      }
+    } catch (e) {}
+
     setAdminBadges(prev => prev.filter(b => b.id !== id));
     toast.success("Badge berhasil dihapus!");
   };
