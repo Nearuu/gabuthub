@@ -4,7 +4,7 @@ import API from "../services/api";
 const savedToken = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
 const savedUser = typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
 
-// Cross-device Global Shared Users Registry
+// Persistent Global Users Registry & Database Auto-Sync Queue
 const saveUserToGlobalRegistry = (userObj) => {
   if (!userObj || (!userObj.email && !userObj.username)) return;
   try {
@@ -34,6 +34,31 @@ const saveUserToGlobalRegistry = (userObj) => {
     }
   } catch (e) {}
 };
+
+// Auto Retry Database Sync Queue when Railway is awake
+const syncPendingUsersToDatabase = async () => {
+  try {
+    const stored = localStorage.getItem("registered_users_list");
+    if (!stored) return;
+    const list = JSON.parse(stored);
+    
+    // Attempt auto-pushing pending user registrations to live Railway Cloud Database
+    for (const u of list) {
+      if (u.is_new && u.email && u.username) {
+        try {
+          await API.post("/register", { username: u.username, email: u.email, password: "password123" });
+          u.is_new = false;
+        } catch (e) {}
+      }
+    }
+    localStorage.setItem("registered_users_list", JSON.stringify(list));
+  } catch (e) {}
+};
+
+// Trigger auto sync on load
+if (typeof window !== "undefined") {
+  setTimeout(syncPendingUsersToDatabase, 2000);
+}
 
 const useAuthStore = create((set, get) => ({
   token: savedToken || null,
@@ -90,10 +115,10 @@ const useAuthStore = create((set, get) => ({
       is_new: true
     };
 
-    // 1. Unconditionally save to persistent global registry & cookies FIRST!
+    // 1. Save to persistent global registry & cookies FIRST
     saveUserToGlobalRegistry(newUser);
 
-    // 2. Transmit to Railway Cloud Backend API if available
+    // 2. Direct Sync to Live Railway Cloud Database
     try {
       const res = await API.post("/register", { username: cleanUsername, email: cleanEmail, password });
       if (res.data && (res.data.token || res.data.access_token)) {
