@@ -254,6 +254,15 @@ export default function Admin() {
     toast.success("Tier List berhasil dihapus!");
   };
 
+  // Reviews & Badges Management States
+  const [adminReviews, setAdminReviews] = useState([]);
+  const [adminBadges, setAdminBadges] = useState([]);
+  const [badgeName, setBadgeName] = useState("");
+  const [badgeDesc, setBadgeDesc] = useState("");
+  const [badgeIcon, setBadgeIcon] = useState("");
+  const [editBadgeId, setEditBadgeId] = useState(null);
+  const [submittingBadge, setSubmittingBadge] = useState(false);
+
   const DEFAULT_BADGES = [
     { id: 1, name: "Drakor Addict", description: "Review minimal 20 drakor di GabutHub", icon: "👑" },
     { id: 2, name: "Movie Master", description: "Nonton 100 film kelas dunia", icon: "🎬" },
