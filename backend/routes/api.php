@@ -123,6 +123,7 @@ Route::post('/osts/{id}/vote', [OstController::class, 'toggleVote']);
 
 // User Profile Update
 Route::post('/user/profile', [AuthController::class, 'updateProfile']);
+Route::put('/user/profile', [AuthController::class, 'updateProfile']);
 Route::get('/user', [AuthController::class, 'me']);
 Route::post('/logout', [AuthController::class, 'logout']);
 

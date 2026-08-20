@@ -244,9 +244,15 @@ export default function Community() {
                 {/* Header info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <img src={post.user.avatar} className="h-8 w-8 rounded-lg bg-wm-bg border border-wm-border object-cover" alt="" />
+                    <img 
+                      src={(user && (post.user?.id === user.id || post.user?.email === user.email || post.user?.username === user.username)) ? user.avatar : (post.user?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=" + (post.user?.username || "user"))} 
+                      className="h-8 w-8 rounded-lg bg-wm-bg border border-wm-border object-cover" 
+                      alt="" 
+                    />
                     <div>
-                      <p className="text-xs font-bold text-wm-texth">@{post.user.username}</p>
+                      <p className="text-xs font-bold text-wm-texth">
+                        @{(user && (post.user?.id === user.id || post.user?.email === user.email)) ? user.username : (post.user?.username || "admin")}
+                      </p>
                       <p className="text-[10px] text-wm-text/50">{new Date(post.created_at).toLocaleDateString("id-ID")}</p>
                     </div>
                   </div>

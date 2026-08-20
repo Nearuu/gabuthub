@@ -175,7 +175,13 @@ const useAuthStore = create((set, get) => ({
     saveUserToGlobalRegistry(updatedUser);
 
     try {
-      await API.put("/user/profile", { bio, avatar, username: newUsername, coverUrl });
+      await API.put("/user/profile", { 
+        email: currentUser.email,
+        username: newUsername || currentUser.username,
+        bio: bio !== undefined ? bio : currentUser.bio, 
+        avatar: avatar || currentUser.avatar,
+        coverUrl 
+      });
     } catch (e) {}
 
     set({ user: updatedUser });

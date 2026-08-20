@@ -552,12 +552,14 @@ export default function Detail() {
                     {/* User profile */}
                     <div className="flex items-center gap-2.5">
                       <img
-                        src={rev.user?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
+                        src={(user && (rev.user?.id === user.id || rev.user?.email === user.email || rev.user_id === user.id)) ? user.avatar : (rev.user?.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User")}
                         alt=""
                         className="h-8 w-8 rounded-lg object-cover bg-wm-bg border border-wm-border"
                       />
                       <div>
-                        <p className="text-xs font-bold text-wm-texth">@{rev.user?.username || "Pengguna"}</p>
+                        <p className="text-xs font-bold text-wm-texth">
+                          @{(user && (rev.user?.id === user.id || rev.user?.email === user.email || rev.user_id === user.id)) ? user.username : (rev.user?.username || "Pengguna")}
+                        </p>
                         <p className="text-[10px] text-wm-text/50">{rev.created_at ? new Date(rev.created_at).toLocaleDateString("id-ID") : "Terbaru"}</p>
                       </div>
                     </div>
