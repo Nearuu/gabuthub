@@ -34,7 +34,7 @@ export default function Home() {
   const [savingWatchlist, setSavingWatchlist] = useState(false);
 
   // Computed status: apakah film featured saat ini sudah di watchlist
-  const inWatchlist = featured ? isWatchlisted(featured.id) : false;
+  const inWatchlist = featured && typeof isWatchlisted === "function" ? isWatchlisted(featured.id) : false;
 
   const [posts, setPosts] = useState([]);
   const [poll, setPoll] = useState(null);
@@ -132,18 +132,13 @@ export default function Home() {
           String(w.content?.id) === String(featured.id)
         );
         if (existing) {
-          setInWatchlist(true);
           setWatchlistForm({
             status: existing.status || "Plan to Watch",
             rating: existing.personal_rating || 10,
             notes: existing.notes || ""
           });
-        } else {
-          setInWatchlist(false);
         }
-      } catch (e) {
-        setInWatchlist(false);
-      }
+      } catch (e) {}
     }
     checkWatchlistStatus();
   }, [featured?.id]);
