@@ -10,6 +10,7 @@ const defaultAdminUser = {
   email: "admin@gabuthub.com",
   role: "admin",
   avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
+  coverUrl: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200",
   bio: "Administrator Resmi GabutHub Indonesia 🚀",
   badges: [
     { id: 1, name: "Drakor Addict" },
@@ -49,8 +50,9 @@ const useAuthStore = create((set, get) => ({
           email: email.includes("@") ? email : `${email}@gabuthub.com`,
           role: "user",
           avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
-          bio: "Pecinta hiburan sejati GabutHub ✨",
-          badges: [{ id: 1, name: "Drakor Addict" }]
+          coverUrl: "",
+          bio: "Member baru GabutHub! 👋",
+          badges: []
         };
 
     const mockToken = "user-token-" + Date.now();
@@ -78,8 +80,9 @@ const useAuthStore = create((set, get) => ({
       email: email || "user@gabuthub.com",
       role: "user",
       avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
+      coverUrl: "",
       bio: "Member baru GabutHub! 👋",
-      badges: [{ id: 1, name: "Drakor Addict" }]
+      badges: []
     };
     const mockToken = "user-token-" + Date.now();
     localStorage.setItem("token", mockToken);
@@ -108,14 +111,20 @@ const useAuthStore = create((set, get) => ({
     } catch (e) {}
   },
 
-  updateProfile: async (bio, avatar) => {
+  updateProfile: async (bio, avatar, newUsername, coverUrl) => {
     const currentUser = get().user;
     if (!currentUser) return { success: false, message: "User tidak ditemukan" };
     
-    const updatedUser = { ...currentUser, bio: bio || currentUser.bio, avatar: avatar || currentUser.avatar };
+    const updatedUser = { 
+      ...currentUser, 
+      username: newUsername || currentUser.username,
+      bio: bio !== undefined ? bio : currentUser.bio, 
+      avatar: avatar || currentUser.avatar,
+      coverUrl: coverUrl !== undefined ? coverUrl : currentUser.coverUrl
+    };
     
     try {
-      await API.put("/user/profile", { bio, avatar });
+      await API.put("/user/profile", { bio, avatar, username: newUsername, coverUrl });
     } catch (e) {}
 
     set({ user: updatedUser });

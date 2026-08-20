@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Heart, Trash2, Star, Eye, Lock, KeyRound } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import API from "../../services/api";
+import { MOCK_CONTENTS } from "../../services/mockData";
 import toast from "react-hot-toast";
 
 const STATUS_TABS = ["Semua", "Plan to Watch", "Watching", "Completed", "Dropped"];
@@ -17,13 +18,29 @@ export default function Watchlist() {
 
   const getWatchlistKey = () => {
     if (!user) return "watchlist_guest";
-    return `watchlist_user_${user.id || user.email}`;
+    return `watchlist_user_${user.id || user.username || user.email}`;
+  };
+
+  const getValidPoster = (item) => {
+    if (item.poster_url && item.poster_url.startsWith("http")) return item.poster_url;
+    if (item.content?.poster_url && item.content.poster_url.startsWith("http")) return item.content.poster_url;
+    
+    // Match with MOCK_CONTENTS by ID or Title
+    const targetId = item.content_id || item.id;
+    const found = MOCK_CONTENTS.find((c) => c.id === parseInt(targetId) || c.title?.toLowerCase() === item.title?.toLowerCase());
+    if (found && found.poster_url) return found.poster_url;
+
+    // Default Fallback Posters based on title
+    if (item.title?.toLowerCase().includes("queen")) return "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
+    if (item.title?.toLowerCase().includes("crash")) return "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg";
+    return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400";
   };
 
   const loadWatchlist = async () => {
     setLoading(true);
+    const key = getWatchlistKey();
+
     try {
-      // 1. Try real API backend
       const res = await API.get("/watchlist");
       if (Array.isArray(res.data) && res.data.length > 0) {
         setWatchlist(res.data);
@@ -32,8 +49,7 @@ export default function Watchlist() {
       }
     } catch (e) {}
 
-    // 2. Local storage per-user isolation fallback
-    const key = getWatchlistKey();
+    // Per-user local storage isolation
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -42,19 +58,32 @@ export default function Watchlist() {
         setWatchlist([]);
       }
     } else {
-      // Standard initial seed for new user
-      const initialSeed = [
-        {
-          id: 1,
-          content_id: 1,
-          title: "Queen of Tears",
-          type: "Drakor",
-          poster_url: "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg",
-          pivot: { status: "Completed", personal_rating: 10 }
-        }
-      ];
-      localStorage.setItem(key, JSON.stringify(initialSeed));
-      setWatchlist(initialSeed);
+      // If user is admin, seed initial admin watchlist, else empty for normal user
+      if (user?.role === "admin" || user?.username === "admin") {
+        const adminSeed = [
+          {
+            id: 1,
+            content_id: 1,
+            title: "Queen of Tears",
+            type: "Drakor",
+            poster_url: "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg",
+            pivot: { status: "Completed", personal_rating: 10 }
+          },
+          {
+            id: 2,
+            content_id: 2,
+            title: "Crash Landing on You",
+            type: "Drakor",
+            poster_url: "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg",
+            pivot: { status: "Watching", personal_rating: 9 }
+          }
+        ];
+        localStorage.setItem(key, JSON.stringify(adminSeed));
+        setWatchlist(adminSeed);
+      } else {
+        localStorage.setItem(key, JSON.stringify([]));
+        setWatchlist([]);
+      }
     }
     setLoading(false);
   };
@@ -65,7 +94,7 @@ export default function Watchlist() {
     } else {
       setLoading(false);
     }
-  }, [token, user]);
+  }, [token, user?.username]);
 
   const handleDelete = async (contentId) => {
     try {
@@ -154,46 +183,53 @@ export default function Watchlist() {
       {/* Content Grid */}
       {filteredList.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredList.map((item) => (
-            <div
-              key={item.id || item.content_id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-wm-border bg-wm-card p-4 shadow-sm transition hover:border-wm-accent/40"
-            >
-              <div className="flex gap-4 items-start">
-                <img
-                  src={item.poster_url || item.content?.poster_url || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300"}
-                  alt=""
-                  className="h-28 w-20 rounded-xl object-cover border border-wm-border flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0 space-y-1">
-                  <span className="inline-block rounded bg-wm-accent/10 border border-wm-accent/20 px-2 py-0.5 text-[9px] font-bold text-wm-accent uppercase">
-                    {item.pivot?.status || item.status || "Plan to Watch"}
-                  </span>
-                  <h3 className="truncate text-base font-black text-wm-texth">{item.title || item.content?.title || "Judul Konten"}</h3>
-                  <div className="flex items-center gap-1 text-xs text-wm-yellow font-bold">
-                    <Star size={12} fill="currentColor" />
-                    <span>{item.pivot?.personal_rating || item.personal_rating || item.avg_rating || "10"}/10</span>
+          {filteredList.map((item) => {
+            const posterSrc = getValidPoster(item);
+            return (
+              <div
+                key={item.id || item.content_id}
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-wm-border bg-wm-card p-4 shadow-sm transition hover:border-wm-accent/40"
+              >
+                <div className="flex gap-4 items-start">
+                  <img
+                    src={posterSrc}
+                    alt={item.title || "Poster"}
+                    className="h-28 w-20 rounded-xl object-cover border border-wm-border flex-shrink-0 bg-wm-bg"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400";
+                    }}
+                  />
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <span className="inline-block rounded bg-wm-accent/10 border border-wm-accent/20 px-2 py-0.5 text-[9px] font-bold text-wm-accent uppercase">
+                      {item.pivot?.status || item.status || "Plan to Watch"}
+                    </span>
+                    <h3 className="truncate text-base font-black text-wm-texth">{item.title || item.content?.title || "Judul Konten"}</h3>
+                    <div className="flex items-center gap-1 text-xs text-wm-yellow font-bold">
+                      <Star size={12} fill="currentColor" />
+                      <span>{item.pivot?.personal_rating || item.personal_rating || item.avg_rating || "10"}/10</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-4 flex items-center justify-between border-t border-wm-border/50 pt-3 text-xs">
-                <Link
-                  to={`/detail/${item.content_id || item.id}`}
-                  className="flex items-center gap-1 font-bold text-wm-accent hover:underline"
-                >
-                  <Eye size={14} /> Detail Film
-                </Link>
-                <button
-                  onClick={() => handleDelete(item.content_id || item.id)}
-                  className="text-red-400 hover:text-red-300 p-1 rounded-lg transition cursor-pointer"
-                  title="Hapus dari Watchlist"
-                >
-                  <Trash2 size={15} />
-                </button>
+                <div className="mt-4 flex items-center justify-between border-t border-wm-border/50 pt-3 text-xs">
+                  <Link
+                    to={`/detail/${item.content_id || item.id}`}
+                    className="flex items-center gap-1 font-bold text-wm-accent hover:underline"
+                  >
+                    <Eye size={14} /> Detail Film
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(item.content_id || item.id)}
+                    className="text-red-400 hover:text-red-300 p-1 rounded-lg transition cursor-pointer"
+                    title="Hapus dari Watchlist"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="rounded-2xl border border-dashed border-wm-border p-12 text-center text-wm-text/50">

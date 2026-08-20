@@ -9,7 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <RouterProvider router={router} />
     </ErrorBoundary>
   </React.StrictMode>,

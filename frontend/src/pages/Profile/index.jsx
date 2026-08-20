@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { User, BookOpen, MessageSquare, Award, Edit3, Check, ShieldCheck, Heart, Sparkles, Star, Flame, LogOut, Lock, KeyRound } from "lucide-react";
+import { User, BookOpen, MessageSquare, Award, Edit3, Check, ShieldCheck, Heart, Sparkles, Star, Flame, LogOut, Lock, KeyRound, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../store/authStore";
 import API from "../../services/api";
@@ -17,36 +17,76 @@ const allPossibleBadges = [
 ];
 
 export default function Profile() {
-  const { user, token, loginAsAdmin, updateProfile, logout } = useAuthStore();
+  const { user, token, updateProfile, logout } = useAuthStore();
 
-  const [watchlistCount, setWatchlistCount] = useState(12);
-  const [postsCount, setPostsCount] = useState(5);
+  const [watchlistCount, setWatchlistCount] = useState(0);
+  const [postsCount, setPostsCount] = useState(0);
+  const [userBadgesCount, setUserBadgesCount] = useState(0);
+  const [votesCount, setVotesCount] = useState(0);
 
   const [editMode, setEditMode] = useState(false);
+  const [username, setUsername] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
   const [bio, setBio] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
+      setUsername(user.username || "");
       setAvatar(user.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User");
-      setBio(user.bio || "Pecinta hiburan sejati GabutHub ✨");
+      setCoverUrl(user.coverUrl || "");
+      setBio(user.bio || "Member baru GabutHub! 👋");
     }
   }, [user]);
 
+  // Compute Per-User Real Activity Stats
   useEffect(() => {
-    if (token) {
-      API.get("/watchlist").then((r) => Array.isArray(r.data) && setWatchlistCount(r.data.length)).catch(() => {});
-      API.get("/posts").then((r) => Array.isArray(r.data) && setPostsCount(r.data.length)).catch(() => {});
+    if (token && user) {
+      const key = `watchlist_user_${user.id || user.username || user.email}`;
+      const storedWatchlist = localStorage.getItem(key);
+      if (storedWatchlist) {
+        try {
+          const parsed = JSON.parse(storedWatchlist);
+          setWatchlistCount(Array.isArray(parsed) ? parsed.length : 0);
+        } catch (e) {
+          setWatchlistCount(0);
+        }
+      } else {
+        setWatchlistCount(user.role === "admin" || user.username === "admin" ? 2 : 0);
+      }
+
+      // Compute Community Posts by this exact username
+      API.get("/posts").then((r) => {
+        if (Array.isArray(r.data)) {
+          const myPosts = r.data.filter((p) => p.user?.username?.toLowerCase() === user.username?.toLowerCase() || p.user_id === user.id);
+          setPostsCount(myPosts.length);
+        } else {
+          setPostsCount(user.role === "admin" ? 2 : 0);
+        }
+      }).catch(() => {
+        setPostsCount(user.role === "admin" ? 2 : 0);
+      });
+
+      // Compute Badges & Votes
+      if (user.role === "admin" || user.username === "admin") {
+        setUserBadgesCount(6);
+        setVotesCount(24);
+      } else {
+        const badges = user.badges ? user.badges.length : 0;
+        setUserBadgesCount(badges);
+        setVotesCount(user.votesCount || 0);
+      }
     }
-  }, [token]);
+  }, [token, user?.username]);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setSaving(true);
-    const res = await updateProfile(bio, avatar);
+
+    const res = await updateProfile(bio, avatar, username, coverUrl);
     if (res.success) {
-      toast.success("Profil berhasil diperbarui!");
+      toast.success("Profil & Username berhasil diperbarui!");
       setEditMode(false);
     } else {
       toast.error(res.message || "Gagal memperbarui profil");
@@ -54,15 +94,10 @@ export default function Profile() {
     setSaving(false);
   };
 
-  const handleFastAdminLogin = () => {
-    loginAsAdmin();
-    toast.success("Berhasil Masuk Sebagai Admin Resmi! 🚀");
-  };
-
   // ────── ALGORITMA STATE 1: UNAUTHENTICATED (BELUM LOGIN) ──────
   if (!token || !user) {
     return (
-      <div className="max-w-2xl mx-auto py-16 px-4 text-center space-y-6">
+      <div className="max-w-2xl mx-auto py-20 px-4 text-center space-y-6">
         <div className="relative mx-auto h-24 w-24 rounded-3xl bg-wm-accent/15 border border-wm-accent/30 flex items-center justify-center text-wm-accent shadow-xl">
           <Lock size={40} />
         </div>
@@ -70,30 +105,23 @@ export default function Profile() {
         <div className="space-y-2">
           <h2 className="text-2xl font-black tracking-tight text-wm-texth">Sesi Anda Belum Aktif</h2>
           <p className="text-xs text-wm-text/60 max-w-md mx-auto leading-relaxed">
-            Anda belum masuk ke akun Anda. Silakan login untuk melihat profil pribadi, mengelola watchlist, dan mengakses Panel Admin.
+            Anda belum masuk ke akun Anda. Silakan login untuk melihat profil pribadi, mengelola watchlist, dan mengakses lencana Anda.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
-          <button
-            onClick={handleFastAdminLogin}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-wm-accent hover:bg-wm-accent-hover px-6 py-3.5 text-xs font-black text-black transition shadow-lg shadow-wm-accent/20 cursor-pointer"
-          >
-            <ShieldCheck size={16} /> Masuk Sebagai Admin (1-Klik)
-          </button>
-
+        <div className="flex justify-center pt-2">
           <Link
             to="/login"
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl border border-wm-border bg-wm-card hover:bg-wm-bg px-6 py-3.5 text-xs font-bold text-wm-texth transition cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-2xl bg-wm-accent hover:bg-wm-accent-hover px-8 py-3.5 text-xs font-black text-black transition shadow-lg shadow-wm-accent/20 cursor-pointer"
           >
-            <KeyRound size={16} /> Masuk / Daftar Akun Biasa
+            <KeyRound size={16} /> Masuk ke Akun Anda
           </Link>
         </div>
       </div>
     );
   }
 
-  // ────── ALGORITMA STATE 2: AUTHENTICATED (SUDAH LOGIN SEBAGAI ADMIN / USER) ──────
+  // ────── ALGORITMA STATE 2: AUTHENTICATED ──────
   const hasBadge = (badgeId) => {
     return user.badges && user.badges.some((b) => b.id === badgeId);
   };
@@ -103,12 +131,19 @@ export default function Profile() {
       
       {/* ────── PREMIUM BANNER & USER PROFILE HEADER ────── */}
       <div className="relative overflow-hidden rounded-3xl border border-wm-border bg-wm-card shadow-2xl">
-        {/* Decorative Ambient Cover Gradient */}
-        <div className="h-40 w-full bg-gradient-to-r from-emerald-600/30 via-teal-600/20 to-purple-600/30 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-wm-accent/20 via-transparent to-transparent" />
+        {/* Decorative Custom Cover Banner */}
+        <div 
+          className="h-44 w-full bg-cover bg-center relative transition-all duration-300"
+          style={{
+            backgroundImage: coverUrl 
+              ? `url(${coverUrl})`
+              : "linear-gradient(to right, rgba(0, 229, 117, 0.3), rgba(20, 184, 166, 0.2), rgba(168, 85, 247, 0.3))"
+          }}
+        >
+          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            <span className="rounded-full bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1 text-2xs font-bold text-white flex items-center gap-1.5">
-              <Sparkles size={13} className="text-wm-accent" /> {user.role === "admin" ? "GabutHub VIP Admin" : "Member Resmi"}
+            <span className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 text-2xs font-bold text-white flex items-center gap-1.5 shadow-md">
+              <Sparkles size={13} className="text-wm-accent" /> {user.role === "admin" ? "Administrator Resmi" : "Member Resmi"}
             </span>
           </div>
         </div>
@@ -143,7 +178,7 @@ export default function Profile() {
             <p className="text-xs text-wm-text/60 font-medium">✉️ {user.email}</p>
 
             <p className="text-sm text-wm-text/80 leading-relaxed max-w-xl font-medium pt-1">
-              "{user.bio || bio || "Belum menulis bio."}"
+              "{user.bio || bio || "Member baru GabutHub! 👋"}"
             </p>
           </div>
 
@@ -153,7 +188,7 @@ export default function Profile() {
               onClick={() => setEditMode(!editMode)}
               className="flex items-center gap-2 rounded-2xl border border-wm-border bg-wm-bg px-5 py-3 text-xs font-bold text-wm-texth hover:text-wm-accent hover:border-wm-accent/40 transition cursor-pointer shadow-md"
             >
-              <Edit3 size={15} /> {editMode ? "Tutup Editor" : "Edit Profil"}
+              <Edit3 size={15} /> {editMode ? "Tutup Editor" : "Edit Profil & Sampul"}
             </button>
             
             {user.role === "admin" && (
@@ -175,7 +210,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* ────── EDIT PROFILE FORM MODAL SECTION ────── */}
+      {/* ────── EDIT PROFILE & SAMPUL BANNER FORM MODAL ────── */}
       <AnimatePresence>
         {editMode && (
           <motion.form
@@ -187,7 +222,7 @@ export default function Profile() {
           >
             <div className="flex items-center justify-between border-b border-wm-border pb-3">
               <h3 className="text-sm font-black uppercase tracking-wider text-wm-texth flex items-center gap-2">
-                <Edit3 size={16} className="text-wm-accent" /> Perbarui Profil Pribadi
+                <Edit3 size={16} className="text-wm-accent" /> Edit Informasi Profil & Gambar Sampul
               </h3>
               <button
                 type="button"
@@ -198,16 +233,39 @@ export default function Profile() {
               </button>
             </div>
 
-            {/* Custom Dual Mode Image Picker for Avatar */}
+            {/* Username Input */}
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-wm-text/70 mb-2">Avatar Profil</label>
-              <ImageInputPicker
-                value={avatar}
-                onChange={setAvatar}
-                placeholder="Upload avatar biasa atau tempel URL gambar avatar..."
+              <label className="block text-xs font-bold uppercase tracking-wider text-wm-text/70 mb-2">Username Baru</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Ketik username baru..."
+                className="w-full rounded-2xl border border-wm-border bg-wm-bg p-3.5 text-xs font-bold text-wm-texth outline-none focus:border-wm-accent transition"
               />
             </div>
 
+            {/* Custom Dual Mode Image Picker for Avatar */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-wm-text/70 mb-2">Foto Avatar Profil</label>
+              <ImageInputPicker
+                value={avatar}
+                onChange={setAvatar}
+                placeholder="Upload avatar atau tempel URL avatar..."
+              />
+            </div>
+
+            {/* Custom Cover / Banner Background Image Picker */}
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-wm-text/70 mb-2">Gambar Sampul / Cover Background</label>
+              <ImageInputPicker
+                value={coverUrl}
+                onChange={setCoverUrl}
+                placeholder="Upload foto sampul atau tempel URL gambar banner..."
+              />
+            </div>
+
+            {/* Bio Input */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-wm-text/70 mb-2">Bio Singkat</label>
               <textarea
@@ -240,7 +298,7 @@ export default function Profile() {
         )}
       </AnimatePresence>
 
-      {/* ────── STATISTIK DASHBOARD CARDS ────── */}
+      {/* ────── REAL PER-USER STATISTIK DASHBOARD CARDS ────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <div className="rounded-3xl border border-wm-border bg-wm-card p-5 text-center space-y-1 shadow-sm hover:border-wm-accent/40 transition">
           <BookOpen className="mx-auto text-wm-accent mb-1" size={26} />
@@ -256,13 +314,13 @@ export default function Profile() {
 
         <div className="rounded-3xl border border-wm-border bg-wm-card p-5 text-center space-y-1 shadow-sm hover:border-wm-accent/40 transition">
           <Award className="mx-auto text-yellow-400 mb-1" size={26} />
-          <p className="text-3xl font-black text-wm-texth">{user.badges?.length || (user.role === "admin" ? 6 : 1)}</p>
+          <p className="text-3xl font-black text-wm-texth">{userBadgesCount}</p>
           <p className="text-3xs font-bold uppercase tracking-widest text-wm-text/50">Koleksi Lencana</p>
         </div>
 
         <div className="rounded-3xl border border-wm-border bg-wm-card p-5 text-center space-y-1 shadow-sm hover:border-wm-accent/40 transition">
           <Flame className="mx-auto text-orange-400 mb-1" size={26} />
-          <p className="text-3xl font-black text-wm-texth">24</p>
+          <p className="text-3xl font-black text-wm-texth">{votesCount}</p>
           <p className="text-3xs font-bold uppercase tracking-widest text-wm-text/50">Total Partisipasi Vote</p>
         </div>
       </div>
@@ -274,13 +332,13 @@ export default function Profile() {
             <Award className="text-yellow-400" size={22} /> Koleksi Lencana & Prestasi (Badges)
           </h2>
           <span className="text-2xs font-bold text-wm-accent bg-wm-accent/10 px-3 py-1 rounded-full border border-wm-accent/20">
-            {user.badges?.length || (user.role === "admin" ? 6 : 1)} / 6 Unlocked
+            {userBadgesCount} / 6 Unlocked
           </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
           {allPossibleBadges.map((badge) => {
-            const unlocked = hasBadge(badge.id) || user.role === "admin";
+            const unlocked = hasBadge(badge.id) || user.role === "admin" || user.username === "admin";
             return (
               <div
                 key={badge.id}
