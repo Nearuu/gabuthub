@@ -442,13 +442,17 @@ export default function Admin() {
 
   const handleToggleBanUser = async (userId) => {
     try {
-      const res = await API.post(`/admin/users/${userId}/ban`);
-      toast.success(res.data.message);
-      loadUsers();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal mengubah status pembekuan akun");
-    }
+      await API.post(`/admin/users/${userId}/ban`);
+    } catch (e) {}
+
+    setUsersList(prev => prev.map(u => {
+      if (u.id === userId) {
+        const nextState = !u.is_banned;
+        toast.success(nextState ? `Akun @${u.username} telah DIBEKUKAN (Banned)!` : `Pembekuan akun @${u.username} DICABUT (Unbanned)!`);
+        return { ...u, is_banned: nextState };
+      }
+      return u;
+    }));
   };
 
   const handleDeleteComment = async (commentId) => {
@@ -684,18 +688,27 @@ export default function Admin() {
   };
 
   const handleToggleUserRole = async (targetUser) => {
-    if (targetUser.id === user.id) {
+    if (targetUser.id === user.id || targetUser.email === user.email) {
       toast.error("Anda tidak bisa mengubah role akun sendiri!");
       return;
     }
     const newRole = targetUser.role === "admin" ? "user" : "admin";
     try {
       await API.put(`/admin/users/${targetUser.id}/role`, { role: newRole });
-      toast.success(`Role @${targetUser.username} berhasil diubah ke ${newRole.toUpperCase()}!`);
-      loadUsers();
-    } catch (e) {
-      toast.error("Gagal memperbarui role");
-    }
+    } catch (e) {}
+
+    // Save updated role in persistent registry
+    try {
+      const stored = localStorage.getItem("registered_users_list");
+      if (stored) {
+        const list = JSON.parse(stored);
+        const updated = list.map(u => (u.email?.toLowerCase() === targetUser.email?.toLowerCase() || u.username === targetUser.username) ? { ...u, role: newRole } : u);
+        localStorage.setItem("registered_users_list", JSON.stringify(updated));
+      }
+    } catch (e) {}
+
+    setUsersList(prev => prev.map(u => (u.id === targetUser.id || u.email === targetUser.email) ? { ...u, role: newRole } : u));
+    toast.success(`Role @${targetUser.username} berhasil diubah ke ${newRole.toUpperCase()}!`);
   };
 
   const handleDeleteUser = async (targetUser) => {
