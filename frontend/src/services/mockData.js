@@ -1769,25 +1769,25 @@ export const MOCK_POLLS = [
                 "id": 1,
                 "poll_id": "1",
                 "option_text": "Thanos (Marvel MCU)",
-                "votes_count": 10
+                "votes_count": 1
             },
             {
                 "id": 2,
                 "poll_id": "1",
                 "option_text": "Ryomen Sukuna (Jujutsu Kaisen)",
-                "votes_count": 10
+                "votes_count": 1
             },
             {
                 "id": 3,
                 "poll_id": "1",
                 "option_text": "Joker (The Dark Knight)",
-                "votes_count": 10
+                "votes_count": 1
             },
             {
                 "id": 4,
                 "poll_id": "1",
                 "option_text": "Park Yeon-jin (The Glory)",
-                "votes_count": 10
+                "votes_count": 0
             }
         ]
     },
@@ -1801,13 +1801,13 @@ export const MOCK_POLLS = [
                 "id": 5,
                 "poll_id": "2",
                 "option_text": "Baek Hyun-woo & Hong Hae-in (Queen of Tears)",
-                "votes_count": 10
+                "votes_count": 1
             },
             {
                 "id": 6,
                 "poll_id": "2",
                 "option_text": "Ri Jeong-hyeok & Yoon Se-ri (CLOY)",
-                "votes_count": 10
+                "votes_count": 0
             },
             {
                 "id": 7,

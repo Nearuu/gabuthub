@@ -12,14 +12,19 @@ const defaultAdminUser = {
   avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
   coverUrl: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200",
   bio: "Administrator Resmi GabutHub Indonesia 🚀",
-  badges: [
-    { id: 1, name: "Drakor Addict" },
-    { id: 2, name: "Movie Master" },
-    { id: 3, name: "Tier Legend" },
-    { id: 4, name: "Reviewer" },
-    { id: 5, name: "Meme Lord" },
-    { id: 6, name: "Top Voter" }
-  ]
+  badges: []
+};
+
+const saveUserToGlobalRegistry = (userObj) => {
+  if (!userObj || !userObj.email) return;
+  try {
+    const storedUsers = localStorage.getItem("registered_users_list");
+    const list = storedUsers ? JSON.parse(storedUsers) : [defaultAdminUser];
+    if (!list.some(u => u.email?.toLowerCase() === userObj.email.toLowerCase() || u.username?.toLowerCase() === userObj.username.toLowerCase())) {
+      list.push(userObj);
+      localStorage.setItem("registered_users_list", JSON.stringify(list));
+    }
+  } catch (e) {}
 };
 
 const useAuthStore = create((set, get) => ({
@@ -27,10 +32,15 @@ const useAuthStore = create((set, get) => ({
   user: savedUser ? JSON.parse(savedUser) : null,
 
   login: async (email, password) => {
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
+    
+    // Try Backend API Login
     try {
       const res = await API.post("/login", { email, password });
       if (res.data && res.data.token) {
         const { token, user } = res.data;
+        saveUserToGlobalRegistry(user);
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
         set({ token, user });
@@ -39,9 +49,6 @@ const useAuthStore = create((set, get) => ({
     } catch (e) {}
 
     // Fallback standard login logic
-    const cleanEmail = (email || "").trim().toLowerCase();
-    const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
-    
     const targetUser = isAdmin
       ? defaultAdminUser
       : {
@@ -51,9 +58,12 @@ const useAuthStore = create((set, get) => ({
           role: "user",
           avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
           coverUrl: "",
+          created_at: new Date().toISOString().slice(0, 10),
           bio: "Member baru GabutHub! 👋",
           badges: []
         };
+
+    saveUserToGlobalRegistry(targetUser);
 
     const mockToken = "user-token-" + Date.now();
     localStorage.setItem("token", mockToken);
@@ -63,38 +73,36 @@ const useAuthStore = create((set, get) => ({
   },
 
   register: async (username, email, password) => {
-    try {
-      const res = await API.post("/register", { username, email, password });
-      if (res.data && res.data.token) {
-        const { token, user } = res.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        set({ token, user });
-        return { success: true };
-      }
-    } catch (e) {}
+    const cleanUsername = (username || (email ? email.split("@")[0] : "User")).trim();
+    const cleanEmail = (email || `${cleanUsername}@gabuthub.com`).trim().toLowerCase();
 
     const newUser = {
       id: Date.now(),
-      username: username || (email ? email.split("@")[0] : "User"),
-      email: email || "user@gabuthub.com",
-      role: "user",
-      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
+      username: cleanUsername,
+      email: cleanEmail,
+      role: cleanEmail.includes("admin") ? "admin" : "user",
+      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${cleanUsername}`,
       coverUrl: "",
       created_at: new Date().toISOString().slice(0, 10),
       bio: "Member baru GabutHub! 👋",
       badges: []
     };
 
-    // Save to persistent registered_users_list
+    // Try Backend API Register
     try {
-      const storedUsers = localStorage.getItem("registered_users_list");
-      const list = storedUsers ? JSON.parse(storedUsers) : [];
-      if (!list.some(u => u.email?.toLowerCase() === newUser.email.toLowerCase() || u.username?.toLowerCase() === newUser.username.toLowerCase())) {
-        list.push(newUser);
-        localStorage.setItem("registered_users_list", JSON.stringify(list));
+      const res = await API.post("/register", { username: cleanUsername, email: cleanEmail, password });
+      if (res.data && res.data.token) {
+        const { token, user } = res.data;
+        saveUserToGlobalRegistry(user || newUser);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user || newUser));
+        set({ token, user: user || newUser });
+        return { success: true };
       }
     } catch (e) {}
+
+    // Always Save to Global User Registry
+    saveUserToGlobalRegistry(newUser);
 
     const mockToken = "user-token-" + Date.now();
     localStorage.setItem("token", mockToken);
@@ -117,6 +125,7 @@ const useAuthStore = create((set, get) => ({
     try {
       const res = await API.get("/user");
       if (res.data) {
+        saveUserToGlobalRegistry(res.data);
         localStorage.setItem("user", JSON.stringify(res.data));
         set({ user: res.data });
       }
@@ -134,6 +143,8 @@ const useAuthStore = create((set, get) => ({
       avatar: avatar || currentUser.avatar,
       coverUrl: coverUrl !== undefined ? coverUrl : currentUser.coverUrl
     };
+
+    saveUserToGlobalRegistry(updatedUser);
     
     try {
       await API.put("/user/profile", { bio, avatar, username: newUsername, coverUrl });
