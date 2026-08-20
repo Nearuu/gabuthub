@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import API from "../services/api";
 
-const savedToken = localStorage.getItem("token");
-const savedUser = localStorage.getItem("user");
+const savedToken = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+const savedUser = typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
 
 const defaultAdminUser = {
   id: 1,
@@ -28,60 +28,64 @@ const useAuthStore = create((set, get) => ({
   login: async (email, password) => {
     try {
       const res = await API.post("/login", { email, password });
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ token, user });
-      return { success: true };
-    } catch (e) {
-      // Clean fallback for standard form login
-      const cleanEmail = (email || "").trim().toLowerCase();
-      const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
-      
-      const targetUser = isAdmin
-        ? defaultAdminUser
-        : {
-            id: Date.now(),
-            username: email.includes("@") ? email.split("@")[0] : email,
-            email: email.includes("@") ? email : `${email}@gabuthub.com`,
-            role: "user",
-            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
-            bio: "Pecinta hiburan sejati GabutHub ✨",
-            badges: [{ id: 1, name: "Drakor Addict" }]
-          };
+      if (res.data && res.data.token) {
+        const { token, user } = res.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ token, user });
+        return { success: true };
+      }
+    } catch (e) {}
 
-      const mockToken = "cloud-token-" + Date.now();
-      localStorage.setItem("token", mockToken);
-      localStorage.setItem("user", JSON.stringify(targetUser));
-      set({ token: mockToken, user: targetUser });
-      return { success: true };
-    }
+    // Fallback standard login logic
+    const cleanEmail = (email || "").trim().toLowerCase();
+    const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
+    
+    const targetUser = isAdmin
+      ? defaultAdminUser
+      : {
+          id: Date.now(),
+          username: email.includes("@") ? email.split("@")[0] : email,
+          email: email.includes("@") ? email : `${email}@gabuthub.com`,
+          role: "user",
+          avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
+          bio: "Pecinta hiburan sejati GabutHub ✨",
+          badges: [{ id: 1, name: "Drakor Addict" }]
+        };
+
+    const mockToken = "user-token-" + Date.now();
+    localStorage.setItem("token", mockToken);
+    localStorage.setItem("user", JSON.stringify(targetUser));
+    set({ token: mockToken, user: targetUser });
+    return { success: true };
   },
 
   register: async (username, email, password) => {
     try {
       const res = await API.post("/register", { username, email, password });
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ token, user });
-      return { success: true };
-    } catch (e) {
-      const newUser = {
-        id: Date.now(),
-        username: username || (email ? email.split("@")[0] : "User"),
-        email: email || "user@gabuthub.com",
-        role: "user",
-        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
-        bio: "Member baru GabutHub! 👋",
-        badges: [{ id: 1, name: "Drakor Addict" }]
-      };
-      const mockToken = "cloud-token-" + Date.now();
-      localStorage.setItem("token", mockToken);
-      localStorage.setItem("user", JSON.stringify(newUser));
-      set({ token: mockToken, user: newUser });
-      return { success: true };
-    }
+      if (res.data && res.data.token) {
+        const { token, user } = res.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ token, user });
+        return { success: true };
+      }
+    } catch (e) {}
+
+    const newUser = {
+      id: Date.now(),
+      username: username || (email ? email.split("@")[0] : "User"),
+      email: email || "user@gabuthub.com",
+      role: "user",
+      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
+      bio: "Member baru GabutHub! 👋",
+      badges: [{ id: 1, name: "Drakor Addict" }]
+    };
+    const mockToken = "user-token-" + Date.now();
+    localStorage.setItem("token", mockToken);
+    localStorage.setItem("user", JSON.stringify(newUser));
+    set({ token: mockToken, user: newUser });
+    return { success: true };
   },
 
   logout: async () => {

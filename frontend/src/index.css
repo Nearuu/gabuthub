@@ -16,31 +16,32 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ─── UNIFIED CONSISTENT MODERN CHARCOAL THEME (TIDAK AKAN BENTROK BELANG PUTIH-HITAM) ─── */
+/* ─── 1. LIGHT MODE (Sangat Bersih, Segar, & Adem) ─── */
 :root {
   --wm-accent: #00E575;       /* Vibrant Emerald Neon */
   --wm-accent-hover: #00C865;
-  --wm-yellow: #FFB800;
-  --wm-bg: #0F141C;            /* Modern Charcoal Background - Adem & Konsisten */
-  --wm-card: #171E29;          /* Elevated Navy Slate Cards */
-  --wm-text: #94A3B8;          /* Slate Body Text */
-  --wm-texth: #FFFFFF;         /* Crisp White Headings */
-  --wm-border: #242E3E;        /* Subtle Border */
+  --wm-yellow: #F59E0B;
+  --wm-bg: #F8FAFC;            /* Clean Soft Slate Background */
+  --wm-card: #FFFFFF;          /* Pure White Cards */
+  --wm-text: #475569;          /* Slate Body Text */
+  --wm-texth: #0F172A;         /* Dark Slate Headings */
+  --wm-border: #E2E8F0;        /* Subtle Crisp Border */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── 2. DARK MODE (Charcoal Space Deep & High Contrast) ─── */
 .dark {
-  --wm-accent: #00E575;
+  --wm-accent: #00E575;       /* Vibrant Emerald Neon */
   --wm-accent-hover: #00C865;
   --wm-yellow: #FFB800;
-  --wm-bg: #0F141C;
-  --wm-card: #171E29;
-  --wm-text: #94A3B8;
-  --wm-texth: #FFFFFF;
-  --wm-border: #242E3E;
+  --wm-bg: #0F141C;            /* Deep Charcoal Background */
+  --wm-card: #171E29;          /* Elevated Navy Slate Cards */
+  --wm-text: #94A3B8;          /* Light Slate Text */
+  --wm-texth: #FFFFFF;         /* White Headings */
+  --wm-border: #242E3E;        /* Dark Subtle Borders */
 }
 
 * {
@@ -52,8 +53,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #0F141C !important;
-  color: #94A3B8 !important;
+  background-color: var(--wm-bg);
+  color: var(--wm-text);
   min-height: 100vh;
 }
 
@@ -62,16 +63,15 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #0F141C !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
-  color: #FFFFFF !important;
+  color: var(--wm-texth);
   letter-spacing: -0.025em;
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #242E3E; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #00E575; }
+::-webkit-scrollbar-thumb { background: var(--wm-border); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--wm-accent); }

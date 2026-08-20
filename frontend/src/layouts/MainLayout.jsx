@@ -13,7 +13,7 @@ export default function MainLayout() {
       <div className="flex flex-1 w-full max-w-[1700px] mx-auto relative">
         <Sidebar />
 
-        <main className="flex-1 min-w-0 min-h-[calc(100vh-64px)] px-4 sm:px-6 md:px-8 py-6 transition-all duration-300">
+        <main className="flex-1 min-w-0 min-h-[calc(100vh-64px)] px-4 sm:px-6 md:px-8 md:pl-[96px] py-6 transition-all duration-300">
           <Outlet />
         </main>
       </div>
