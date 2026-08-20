@@ -11,7 +11,25 @@ use App\Http\Controllers\Api\TierListController;
 use App\Http\Controllers\Api\PollController;
 use App\Http\Controllers\Api\OstController;
 
-// Public routes
+Route::get('/test-db', function () {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $tables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        $usersCount = \App\Models\User::count();
+        return response()->json([
+            'status' => 'connected',
+            'database' => \Illuminate\Support\Facades\DB::connection()->getDatabaseName(),
+            'tables_count' => count($tables),
+            'users_count' => $usersCount
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
