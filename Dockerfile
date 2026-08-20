@@ -1,6 +1,5 @@
 FROM php:8.2-cli-alpine
 
-# Install system dependencies & PHP extensions
 RUN apk add --no-cache \
     curl \
     git \
@@ -15,24 +14,18 @@ RUN apk add --no-cache \
 
 RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring bcmath
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-WORKDIR /app
-
-# Copy backend application
-COPY backend/ ./backend/
 
 WORKDIR /app/backend
 
-# Install backend dependencies
+COPY backend/ /app/backend/
+
 RUN composer install --no-dev --optimize-autoloader
 
-# Ensure storage directories exist and have proper permissions
 RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
     chmod -R 777 storage bootstrap/cache
 
 EXPOSE 8080
 
-# Start Laravel
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+# Clear stale caches and start Laravel dynamically with runtime environment variables
+CMD ["sh", "-c", "php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
