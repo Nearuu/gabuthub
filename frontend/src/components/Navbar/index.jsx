@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Search, Dice5, ChevronDown, User as UserIcon, Heart, LogOut, Sparkles, X, Menu, Sun, Moon, ShieldCheck } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -30,17 +29,12 @@ export default function Navbar() {
     { id: 3, text: "Polling 'Best Villain' baru saja berakhir. Cek hasilnya!", time: "1 hari yang lalu" },
   ];
 
-  const activeUser = user || {
-    username: "admin",
-    email: "admin@gabuthub.com",
-    role: "admin",
-    avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin"
-  };
+  const activeUser = user;
 
   useEffect(() => {
     if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
     const t = setTimeout(async () => {
-      try { const r = await API.get(`/contents?search=${searchQuery}`); setSearchResults(r.data.slice(0, 5)); }
+      try { const r = await API.get(`/contents?search=${searchQuery}`); setSearchResults(Array.isArray(r.data) ? r.data.slice(0, 5) : []); }
       catch (e) { console.error(e); }
     }, 300);
     return () => clearTimeout(t);
@@ -133,7 +127,7 @@ export default function Navbar() {
           {token && activeUser ? (
             <div ref={userMenuRef} className="relative">
               <div onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center gap-2 rounded-full border border-wm-border bg-wm-bg p-1 pr-3 transition hover:bg-wm-border">
-                <img src={activeUser.avatar} alt={activeUser.username} className="h-8 w-8 rounded-full object-cover border border-wm-border" />
+                <img src={activeUser.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"} alt={activeUser.username} className="h-8 w-8 rounded-full object-cover border border-wm-border" />
                 <ChevronDown size={14} className="text-wm-text/50" />
               </div>
               <AnimatePresence>{showUserMenu && (
@@ -166,105 +160,99 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* SURPRISE ME MODAL PORTAL */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {showSurpriseModal && (
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative w-full max-w-md overflow-hidden rounded-3xl border border-wm-border bg-wm-card p-6 shadow-2xl"
-              >
-                {/* Header Modal */}
-                <div className="flex items-center justify-between border-b border-wm-border/60 pb-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-xl bg-wm-accent/15 text-wm-accent">
-                      <Dice5 size={18} className={isSpinning ? "animate-spin" : ""} />
-                    </div>
-                    <h3 className="text-sm font-black text-wm-texth">Surprise Recommendation</h3>
+      {/* SURPRISE ME MODAL */}
+      <AnimatePresence>
+        {showSurpriseModal && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-wm-border bg-wm-card p-6 shadow-2xl"
+            >
+              <div className="flex items-center justify-between border-b border-wm-border/60 pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-xl bg-wm-accent/15 text-wm-accent">
+                    <Dice5 size={18} className={isSpinning ? "animate-spin" : ""} />
                   </div>
-                  <button
-                    onClick={() => setShowSurpriseModal(false)}
-                    className="rounded-full p-1.5 text-wm-text/50 hover:bg-wm-bg hover:text-wm-texth transition cursor-pointer"
-                  >
-                    <X size={18} />
-                  </button>
+                  <h3 className="text-sm font-black text-wm-texth">Surprise Recommendation</h3>
                 </div>
+                <button
+                  onClick={() => setShowSurpriseModal(false)}
+                  className="rounded-full p-1.5 text-wm-text/50 hover:bg-wm-bg hover:text-wm-texth transition cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
 
-                {/* Content Loading or Result */}
-                <div className="py-2 space-y-5 text-center">
-                  {isSpinning ? (
-                    <div className="py-12 flex flex-col items-center justify-center space-y-3">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ repeat: Infinity, duration: 0.6, ease: "linear" }}
-                        className="h-12 w-12 rounded-full border-3 border-wm-accent border-t-transparent shadow-lg shadow-wm-accent/20"
-                      />
-                      <p className="text-xs font-bold text-wm-accent uppercase tracking-widest animate-pulse">
-                        Memutar Dadu Keberuntungan...
-                      </p>
-                    </div>
-                  ) : surpriseResult ? (
+              <div className="py-2 space-y-5 text-center">
+                {isSpinning ? (
+                  <div className="py-12 flex flex-col items-center justify-center space-y-3">
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="space-y-4 text-left"
-                    >
-                      <div className="flex gap-4 items-center rounded-2xl border border-wm-border/60 bg-wm-bg p-3.5 shadow-inner">
-                        <img
-                          src={surpriseResult.poster_url}
-                          alt=""
-                          className="h-28 w-20 rounded-xl object-cover border border-wm-border shadow-md"
-                        />
-                        <div className="flex-1 overflow-hidden space-y-1">
-                          <span className="rounded bg-wm-accent/10 border border-wm-accent/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-accent">
-                            {surpriseResult.type}
-                          </span>
-                          <h4 className="truncate text-base font-black text-wm-texth">{surpriseResult.title}</h4>
-                          <p className="line-clamp-2 text-2xs text-wm-text/70">{surpriseResult.synopsis}</p>
-                        </div>
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 0.6, ease: "linear" }}
+                      className="h-12 w-12 rounded-full border-3 border-wm-accent border-t-transparent shadow-lg shadow-wm-accent/20"
+                    />
+                    <p className="text-xs font-bold text-wm-accent uppercase tracking-widest animate-pulse">
+                      Memutar Dadu Keberuntungan...
+                    </p>
+                  </div>
+                ) : surpriseResult ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4 text-left"
+                  >
+                    <div className="flex gap-4 items-center rounded-2xl border border-wm-border/60 bg-wm-bg p-3.5 shadow-inner">
+                      <img
+                        src={surpriseResult.poster_url}
+                        alt=""
+                        className="h-28 w-20 rounded-xl object-cover border border-wm-border shadow-md"
+                      />
+                      <div className="flex-1 overflow-hidden space-y-1">
+                        <span className="rounded bg-wm-accent/10 border border-wm-accent/20 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-accent">
+                          {surpriseResult.type}
+                        </span>
+                        <h4 className="truncate text-base font-black text-wm-texth">{surpriseResult.title}</h4>
+                        <p className="line-clamp-2 text-2xs text-wm-text/70">{surpriseResult.synopsis}</p>
                       </div>
+                    </div>
 
-                      {/* Action Buttons */}
-                      <div className="space-y-2 pt-1">
+                    <div className="space-y-2 pt-1">
+                      <button
+                        onClick={() => {
+                          setShowSurpriseModal(false);
+                          navigate(`/detail/${surpriseResult.id}`);
+                        }}
+                        className="w-full rounded-xl bg-wm-accent py-3 text-xs font-black text-black shadow-md shadow-wm-accent/10 transition hover:bg-wm-accent-hover cursor-pointer"
+                      >
+                        Tonton / Cek Detail
+                      </button>
+
+                      <div className="grid grid-cols-2 gap-2">
                         <button
-                          onClick={() => {
-                            setShowSurpriseModal(false);
-                            navigate(`/detail/${surpriseResult.id}`);
-                          }}
-                          className="w-full rounded-xl bg-wm-accent py-3 text-xs font-black text-black shadow-md shadow-wm-accent/10 transition hover:bg-wm-accent-hover cursor-pointer"
+                          onClick={handleSurpriseMe}
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-wm-border bg-wm-bg py-2.5 text-xs font-bold text-wm-texth hover:bg-wm-card transition cursor-pointer"
                         >
-                          Tonton / Cek Detail
+                          <Dice5 size={14} className="text-wm-accent" />
+                          <span>Acak Lagi</span>
                         </button>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            onClick={handleSurpriseMe}
-                            className="flex items-center justify-center gap-1.5 rounded-xl border border-wm-border bg-wm-bg py-2.5 text-xs font-bold text-wm-texth hover:bg-wm-card transition cursor-pointer"
-                          >
-                            <Dice5 size={14} className="text-wm-accent" />
-                            <span>Acak Lagi</span>
-                          </button>
-
-                          <button
-                            onClick={() => setShowSurpriseModal(false)}
-                            className="rounded-xl border border-wm-border bg-wm-bg py-2.5 text-xs font-bold text-wm-text hover:text-wm-texth hover:bg-wm-card transition cursor-pointer"
-                          >
-                            Tutup
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => setShowSurpriseModal(false)}
+                          className="rounded-xl border border-wm-border bg-wm-bg py-2.5 text-xs font-bold text-wm-text hover:text-wm-texth hover:bg-wm-card transition cursor-pointer"
+                        >
+                          Tutup
+                        </button>
                       </div>
-                    </motion.div>
-                  ) : null}
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+                    </div>
+                  </motion.div>
+                ) : null}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
