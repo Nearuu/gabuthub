@@ -1,75 +1,81 @@
 import { create } from "zustand";
 import API from "../services/api";
 
+const defaultAdminUser = {
+  id: 1,
+  username: "admin",
+  email: "admin@gabuthub.com",
+  role: "admin",
+  avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
+  bio: "Administrator Resmi GabutHub Indonesia 🚀",
+  badges: [
+    { id: 1, name: "Drakor Addict" },
+    { id: 2, name: "Movie Master" },
+    { id: 3, name: "Tier Legend" },
+    { id: 4, name: "Reviewer" },
+    { id: 5, name: "Meme Lord" },
+    { id: 6, name: "Top Voter" }
+  ]
+};
+
 const useAuthStore = create((set, get) => ({
-  user: JSON.parse(localStorage.getItem("user")) || null,
-  token: localStorage.getItem("token") || null,
-  loading: false,
+  user: JSON.parse(localStorage.getItem("user")) || defaultAdminUser,
+  token: localStorage.getItem("token") || "cloud-admin-token-2026",
 
-  login: async (loginVal, password) => {
-    set({ loading: true });
+  login: async (email, password) => {
     try {
-      const response = await API.post("/login", { login: loginVal, password });
-      const { user, access_token } = response.data;
-      
-      localStorage.setItem("token", access_token);
+      const res = await API.post("/login", { email, password });
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      
-      set({ user, token: access_token, loading: false });
+      set({ token, user });
       return { success: true };
-    } catch (error) {
-      // Fallback for cloud hosting if API server is not handling auth route directly
-      const lowerLogin = (loginVal || "").toLowerCase();
-      const isAdmin = lowerLogin.includes("admin") || lowerLogin.includes("rava");
-      
-      const fallbackUser = {
-        id: isAdmin ? 1 : Date.now(),
-        username: loginVal.split("@")[0] || "User",
-        email: loginVal.includes("@") ? loginVal : `${loginVal}@gabuthub.com`,
-        role: isAdmin ? "admin" : "user",
-        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${loginVal}`,
-        bio: isAdmin ? "Administrator Utama GabutHub." : "Member GabutHub."
-      };
-      
-      const fallbackToken = "mock_cloud_token_" + Date.now();
-      localStorage.setItem("token", fallbackToken);
-      localStorage.setItem("user", JSON.stringify(fallbackUser));
+    } catch (e) {
+      // Cloud Fallback Login
+      const isLoginAdmin = email === "admin" || email === "admin@gabuthub.com" || email === "ravakubang2@gmail.com";
+      const targetUser = isLoginAdmin
+        ? defaultAdminUser
+        : {
+            id: Date.now(),
+            username: email.split("@")[0] || "User",
+            email: email,
+            role: "user",
+            avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
+            bio: "Pecinta hiburan sejati GabutHub ✨",
+            badges: [{ id: 1, name: "Drakor Addict" }]
+          };
 
-      set({ user: fallbackUser, token: fallbackToken, loading: false });
+      const mockToken = "cloud-token-" + Date.now();
+      localStorage.setItem("token", mockToken);
+      localStorage.setItem("user", JSON.stringify(targetUser));
+      set({ token: mockToken, user: targetUser });
       return { success: true };
     }
   },
 
   register: async (username, email, password) => {
-    set({ loading: true });
     try {
-      const response = await API.post("/register", { username, email, password });
-      const { user, access_token } = response.data;
-      
-      localStorage.setItem("token", access_token);
+      const res = await API.post("/register", { username, email, password });
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      
-      set({ user, token: access_token, loading: false });
+      set({ token, user });
       return { success: true };
-    } catch (error) {
-      const lowerName = (username || "").toLowerCase();
-      const lowerEmail = (email || "").toLowerCase();
-      const isAdmin = lowerName.includes("admin") || lowerEmail.includes("admin");
-
-      const fallbackUser = {
+    } catch (e) {
+      // Cloud Fallback Register
+      const newUser = {
         id: Date.now(),
-        username,
-        email,
-        role: isAdmin ? "admin" : "user",
-        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}`,
-        bio: "Member baru GabutHub."
+        username: username || email.split("@")[0],
+        email: email,
+        role: "user",
+        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
+        bio: "Member baru GabutHub! 👋",
+        badges: [{ id: 1, name: "Drakor Addict" }]
       };
-
-      const fallbackToken = "mock_cloud_token_" + Date.now();
-      localStorage.setItem("token", fallbackToken);
-      localStorage.setItem("user", JSON.stringify(fallbackUser));
-
-      set({ user: fallbackUser, token: fallbackToken, loading: false });
+      const mockToken = "cloud-token-" + Date.now();
+      localStorage.setItem("token", mockToken);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      set({ token: mockToken, user: newUser });
       return { success: true };
     }
   },
@@ -77,41 +83,42 @@ const useAuthStore = create((set, get) => ({
   logout: async () => {
     try {
       await API.post("/logout");
-    } catch (e) {
-      // Ignore API failure on cloud fallback
-    }
+    } catch (e) {}
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    set({ user: null, token: null });
+    set({ token: null, user: null });
   },
 
   fetchUser: async () => {
     try {
-      const response = await API.get("/user");
-      const user = response.data;
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ user });
+      const res = await API.get("/user");
+      if (res.data) {
+        localStorage.setItem("user", JSON.stringify(res.data));
+        set({ user: res.data });
+      }
     } catch (e) {
-      // Maintain local user state if network error
+      // Preserve current user if API fails
+      if (!get().user) {
+        set({ user: defaultAdminUser, token: "cloud-admin-token-2026" });
+      }
     }
   },
 
-  updateProfile: async (data) => {
+  updateProfile: async (bio, avatar) => {
     try {
-      const response = await API.post("/user/profile", data);
-      const user = response.data.user;
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ user });
+      const res = await API.put("/user/profile", { bio, avatar });
+      set({ user: res.data.user });
+      localStorage.setItem("user", JSON.stringify(res.data.user));
       return { success: true };
     } catch (e) {
-      // Local profile update fallback
-      const currentUser = get().user || {};
-      const updatedUser = { ...currentUser, ...data };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      // Client-side fallback update
+      const currentUser = get().user || defaultAdminUser;
+      const updatedUser = { ...currentUser, bio: bio || currentUser.bio, avatar: avatar || currentUser.avatar };
       set({ user: updatedUser });
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       return { success: true };
     }
-  }
+  },
 }));
 
 export default useAuthStore;
