@@ -30,11 +30,57 @@ API.interceptors.request.use(
   }
 );
 
+// Helper function to filter MOCK_CONTENTS based on query parameters
+const filterMockContents = (url) => {
+  try {
+    const urlObj = new URL(url, "http://dummy.com");
+    const typeParam = (urlObj.searchParams.get("type") || "").toLowerCase().trim();
+    const searchParam = (urlObj.searchParams.get("search") || "").toLowerCase().trim();
+    const genreParam = urlObj.searchParams.get("genre_id");
+
+    return MOCK_CONTENTS.filter((item) => {
+      // Type match (e.g., film, movie, drakor, drama, anime)
+      if (typeParam) {
+        const itemType = (item.type || "").toLowerCase().trim();
+        if (typeParam === "film" || typeParam === "movie" || typeParam === "series") {
+          if (itemType !== "movie" && itemType !== "film" && itemType !== "series") return false;
+        } else if (typeParam === "drakor" || typeParam === "drama") {
+          if (itemType !== "drakor" && itemType !== "drama") return false;
+        } else if (typeParam === "anime") {
+          if (itemType !== "anime") return false;
+        } else if (itemType !== typeParam) {
+          return false;
+        }
+      }
+
+      // Search match
+      if (searchParam) {
+        const titleMatch = (item.title || "").toLowerCase().includes(searchParam);
+        const synopsisMatch = (item.synopsis || "").toLowerCase().includes(searchParam);
+        if (!titleMatch && !synopsisMatch) return false;
+      }
+
+      // Genre match
+      if (genreParam) {
+        const hasGenre = item.genres && item.genres.some((g) => String(g.id) === String(genreParam));
+        if (!hasGenre) return false;
+      }
+
+      return true;
+    });
+  } catch (e) {
+    return MOCK_CONTENTS;
+  }
+};
+
 // Response interceptor to handle token expiry / unauthenticated errors and cloud fallback
 API.interceptors.response.use(
   (response) => {
     if (Array.isArray(response.data) && response.data.length === 0) {
-      if (response.config.url.includes("/contents")) return { ...response, data: MOCK_CONTENTS };
+      if (response.config.url.includes("/contents")) {
+        const filtered = filterMockContents(response.config.url);
+        return { ...response, data: filtered };
+      }
       if (response.config.url.includes("/polls")) return { ...response, data: MOCK_POLLS };
       if (response.config.url.includes("/posts")) return { ...response, data: MOCK_POSTS };
       if (response.config.url.includes("/flag-characters")) return { ...response, data: MOCK_GAME_CHARS };
@@ -48,9 +94,12 @@ API.interceptors.response.use(
       localStorage.removeItem("user");
     }
 
-    if (!error.response || error.response.status === 404 || error.code === "ERR_NETWORK") {
+    if (!error.response || error.response.status === 404 || error.code === "ERR_NETWORK" || error.response.status === 502) {
       const url = error.config?.url || "";
-      if (url.includes("/contents")) return Promise.resolve({ data: MOCK_CONTENTS, status: 200 });
+      if (url.includes("/contents")) {
+        const filtered = filterMockContents(url);
+        return Promise.resolve({ data: filtered, status: 200 });
+      }
       if (url.includes("/polls")) return Promise.resolve({ data: MOCK_POLLS, status: 200 });
       if (url.includes("/posts")) return Promise.resolve({ data: MOCK_POSTS, status: 200 });
       if (url.includes("/flag-characters")) return Promise.resolve({ data: MOCK_GAME_CHARS, status: 200 });
