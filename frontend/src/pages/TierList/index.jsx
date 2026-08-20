@@ -305,15 +305,82 @@ export default function TierList() {
                         <span className="max-w-[100px] truncate">{item.title}</span>
                         <button
                           onClick={() => handleRemoveItem(item.id, tier)}
-                          className="ml-1 text-red-400 hover:text-red-300"
+                          className="ml-1 text-red-400 hover:text-red-300 font-black text-sm cursor-pointer"
                         >
                           ×
                         </button>
                       </div>
                     ))}
+                    {builderRows[tier].length === 0 && (
+                      <span className="text-3xs text-wm-text/40 italic ml-2">Drag konten atau klik tombol tier di bawah</span>
+                    )}
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Pool of Available Contents to Add / Drag */}
+            <div className="space-y-3 pt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-wm-border/50 pt-4">
+                <div>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-wm-texth">
+                    Pilihan Film & Konten ({filteredPool.length})
+                  </h4>
+                  <p className="text-3xs text-wm-text/60">
+                    Klik tombol tier (S, A, B, C, D, F) atau drag gambar konten ke baris tier di atas:
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  value={poolSearch}
+                  onChange={(e) => setPoolSearch(e.target.value)}
+                  placeholder="Cari judul konten..."
+                  className="rounded-xl border border-wm-border bg-wm-bg px-3 py-1.5 text-xs text-wm-texth outline-none focus:border-wm-accent transition w-full sm:w-48"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3 max-h-72 overflow-y-auto p-3 rounded-xl border border-wm-border bg-wm-bg/40">
+                {filteredPool.length > 0 ? (
+                  filteredPool.map((item) => (
+                    <div
+                      key={item.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, item)}
+                      className="group relative flex flex-col items-center w-24 p-2 rounded-xl border border-wm-border bg-wm-card hover:border-wm-accent transition shadow-sm cursor-grab active:cursor-grabbing"
+                    >
+                      <img
+                        src={item.poster_url}
+                        alt={item.title}
+                        className="h-24 w-18 rounded-lg object-cover mb-1.5 shadow"
+                      />
+                      <span className="text-3xs font-bold text-wm-texth text-center line-clamp-1 w-full">
+                        {item.title}
+                      </span>
+                      <span className="text-[9px] text-wm-text/50 capitalize mb-1">
+                        {item.type}
+                      </span>
+
+                      {/* Quick Add Tier Buttons */}
+                      <div className="flex flex-wrap justify-center gap-1 w-full pt-1 border-t border-wm-border/40">
+                        {TIERS.map((t) => (
+                          <button
+                            key={t}
+                            onClick={() => handleAddItemToRow(item.id, t)}
+                            title={`Tambah ke Tier ${t}`}
+                            className={`h-4 w-4 rounded text-[9px] font-black flex items-center justify-center cursor-pointer transition active:scale-90 ${TIER_COLORS[t]}`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="w-full py-8 text-center text-xs text-wm-text/50">
+                    Tidak ada konten yang tersedia dalam kategori {category}.
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
