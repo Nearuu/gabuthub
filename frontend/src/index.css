@@ -16,16 +16,16 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ─── DEFAULT CLEAN SOFT LIGHT THEME (Pasti Terang & Tidak Pernah Blank Hitam) ─── */
+/* ─── UNIFIED CONSISTENT MODERN CHARCOAL THEME (TIDAK AKAN BENTROK BELANG PUTIH-HITAM) ─── */
 :root {
   --wm-accent: #00E575;       /* Vibrant Emerald Neon */
   --wm-accent-hover: #00C865;
-  --wm-yellow: #F59E0B;
-  --wm-bg: #F8FAFC;            /* Clean Slate White Background */
-  --wm-card: #FFFFFF;          /* Pure White Cards */
-  --wm-text: #475569;          /* Slate Body Text */
-  --wm-texth: #0F172A;         /* Dark Slate Headings */
-  --wm-border: #E2E8F0;        /* Crisp Border */
+  --wm-yellow: #FFB800;
+  --wm-bg: #0F141C;            /* Modern Charcoal Background - Adem & Konsisten */
+  --wm-card: #171E29;          /* Elevated Navy Slate Cards */
+  --wm-text: #94A3B8;          /* Slate Body Text */
+  --wm-texth: #FFFFFF;         /* Crisp White Headings */
+  --wm-border: #242E3E;        /* Subtle Border */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -33,14 +33,14 @@
 }
 
 .dark {
-  --wm-accent: #00E575;       /* Hijau neon vibrant menyala */
+  --wm-accent: #00E575;
   --wm-accent-hover: #00C865;
-  --wm-yellow: #FFD369;
-  --wm-bg: #0F172A;            /* Slate Navy Background */
-  --wm-card: #1E293B;          /* Elevated Navy Slate Cards */
-  --wm-text: #94A3B8;          /* Light Slate Body Text */
-  --wm-texth: #FFFFFF;         /* White Headings */
-  --wm-border: #334155;        /* Dark Borders */
+  --wm-yellow: #FFB800;
+  --wm-bg: #0F141C;
+  --wm-card: #171E29;
+  --wm-text: #94A3B8;
+  --wm-texth: #FFFFFF;
+  --wm-border: #242E3E;
 }
 
 * {
@@ -52,8 +52,8 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #F8FAFC !important;
-  color: #475569;
+  background-color: #0F141C !important;
+  color: #94A3B8 !important;
   min-height: 100vh;
 }
 
@@ -62,15 +62,16 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #0F141C !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
-  color: #0F172A;
+  color: #FFFFFF !important;
   letter-spacing: -0.025em;
 }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 9999px; }
+::-webkit-scrollbar-thumb { background: #242E3E; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #00E575; }
