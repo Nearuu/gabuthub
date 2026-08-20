@@ -11,44 +11,29 @@ export const MOCK_CONTENTS = [
         "is_featured": 1,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 1,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 1,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 2,
-                "user_id": 1,
-                "content_id": 1,
                 "rating": 9,
                 "review": "Chemistry Kim Soo-hyun dan Kim Ji-won bener-bener gila! Ceritanya seru dan penuh emosi.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 2,
@@ -62,52 +47,33 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
+                "id": 2,
+                "name": "Romance"
+            },
+            {
                 "id": 3,
-                "name": "Comedy",
-                "pivot": {
-                    "content_id": 2,
-                    "genre_id": 3
-                }
+                "name": "Comedy"
             },
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 2,
-                    "genre_id": 7
-                }
-            },
-            {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 2,
-                    "genre_id": 2
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 3,
-                "user_id": 1,
-                "content_id": 2,
                 "rating": 9,
                 "review": "Salah satu drakor romance terbaik sepanjang masa. Gak pernah bosan nonton ulang!",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 3,
@@ -122,15 +88,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 3,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 4,
@@ -145,65 +109,53 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 4,
-                    "genre_id": 1
-                }
+                "name": "Action"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 4,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             }
         ],
         "osts": [
             {
                 "id": 40,
-                "content_id": 4,
+                "content_id": "4",
                 "title": "Gurenge",
                 "artist": "LiSA",
-                "preview_url": "https://www.youtube.com/watch?v=CwkzK-F0Y00"
+                "preview_url": "https://www.youtube.com/watch?v=CwkzK-F0Y00",
+                "likes_count": 0
             },
             {
                 "id": 41,
-                "content_id": 4,
+                "content_id": "4",
                 "title": "Homura",
                 "artist": "LiSA",
-                "preview_url": "https://www.youtube.com/watch?v=4DxL6IKmXx4"
+                "preview_url": "https://www.youtube.com/watch?v=4DxL6IKmXx4",
+                "likes_count": 0
             },
             {
                 "id": 42,
-                "content_id": 4,
+                "content_id": "4",
                 "title": "Zankyou Sanka",
                 "artist": "Aimer",
-                "preview_url": "https://www.youtube.com/watch?v=7ZeMWQ1trQM"
+                "preview_url": "https://www.youtube.com/watch?v=7ZeMWQ1trQM",
+                "likes_count": 0
             }
         ],
         "reviews": [
             {
                 "id": 4,
-                "user_id": 1,
-                "content_id": 4,
                 "rating": 9,
                 "review": "Animasi dari ufotable bener-bener level dewa. Fight scene Mugen Train dan Entertainment District luar biasa!",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 5,
@@ -217,67 +169,50 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 5,
-                    "genre_id": 7
-                }
-            },
-            {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 5,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
                 "id": 6,
-                "name": "Slice of Life",
-                "pivot": {
-                    "content_id": 5,
-                    "genre_id": 6
-                }
+                "name": "Slice of Life"
+            },
+            {
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [
             {
                 "id": 36,
-                "content_id": 5,
+                "content_id": "5",
                 "title": "Yuusha",
                 "artist": "YOASOBI",
-                "preview_url": "https://www.youtube.com/watch?v=OIBODIPC_8Y"
+                "preview_url": "https://www.youtube.com/watch?v=OIBODIPC_8Y",
+                "likes_count": 0
             },
             {
                 "id": 37,
-                "content_id": 5,
+                "content_id": "5",
                 "title": "Anytime Anywhere",
                 "artist": "milet",
-                "preview_url": "https://www.youtube.com/watch?v=qFAYqLs1zGw"
+                "preview_url": "https://www.youtube.com/watch?v=qFAYqLs1zGw",
+                "likes_count": 0
             }
         ],
         "reviews": [
             {
                 "id": 5,
-                "user_id": 1,
-                "content_id": 5,
                 "rating": 10,
                 "review": "Anime paling bermakna dan menenangkan. Storytelling dan musiknya begitu indah.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 6,
@@ -291,44 +226,29 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 6,
-                    "genre_id": 7
-                }
+                "id": 4,
+                "name": "Fantasy"
             },
             {
-                "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 6,
-                    "genre_id": 4
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 6,
-                "user_id": 1,
-                "content_id": 6,
                 "rating": 10,
                 "review": "Karya masterpiece dari Hayao Miyazaki & Studio Ghibli yang tak pernah lekang oleh waktu.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 7,
@@ -343,43 +263,28 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 7,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             },
             {
                 "id": 8,
-                "name": "Sci-Fi",
-                "pivot": {
-                    "content_id": 7,
-                    "genre_id": 8
-                }
+                "name": "Sci-Fi"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 7,
-                "user_id": 1,
-                "content_id": 7,
                 "rating": 10,
                 "review": "Film Sci-Fi terbaik arahan Christopher Nolan. Scoring karya Hans Zimmer bener-bener magis.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 8,
@@ -394,31 +299,21 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 8,
-                    "genre_id": 1
-                }
-            },
-            {
-                "id": 8,
-                "name": "Sci-Fi",
-                "pivot": {
-                    "content_id": 8,
-                    "genre_id": 8
-                }
+                "name": "Action"
             },
             {
                 "id": 5,
-                "name": "Thriller",
-                "pivot": {
-                    "content_id": 8,
-                    "genre_id": 5
-                }
+                "name": "Thriller"
+            },
+            {
+                "id": 8,
+                "name": "Sci-Fi"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 12,
@@ -433,31 +328,21 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 12,
-                    "genre_id": 1
-                }
+                "name": "Action"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 12,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
                 "id": 8,
-                "name": "Sci-Fi",
-                "pivot": {
-                    "content_id": 12,
-                    "genre_id": 8
-                }
+                "name": "Sci-Fi"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 13,
@@ -472,31 +357,21 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 13,
-                    "genre_id": 1
-                }
+                "name": "Action"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 13,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
                 "id": 8,
-                "name": "Sci-Fi",
-                "pivot": {
-                    "content_id": 13,
-                    "genre_id": 8
-                }
+                "name": "Sci-Fi"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 14,
@@ -510,32 +385,22 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
+                "id": 5,
+                "name": "Thriller"
+            },
+            {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 14,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             },
             {
                 "id": 9,
-                "name": "Mystery",
-                "pivot": {
-                    "content_id": 14,
-                    "genre_id": 9
-                }
-            },
-            {
-                "id": 5,
-                "name": "Thriller",
-                "pivot": {
-                    "content_id": 14,
-                    "genre_id": 5
-                }
+                "name": "Mystery"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 15,
@@ -550,51 +415,32 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 15,
-                    "genre_id": 1
-                }
-            },
-            {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 15,
-                    "genre_id": 7
-                }
+                "name": "Action"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 15,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
+            },
+            {
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 1,
-                "user_id": 1,
-                "content_id": 15,
                 "rating": 9,
                 "review": "Masterpiece drama korea bertema superpower paling emosional dan epik di tahun 2023! Akting dan efeknya luar biasa.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 16,
@@ -608,47 +454,39 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 16,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 16,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 16,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [
             {
                 "id": 51,
-                "content_id": 16,
+                "content_id": "16",
                 "title": "Zenzenzense",
                 "artist": "RADWIMPS",
-                "preview_url": "https://www.youtube.com/watch?v=PDSkFeMVNFs"
+                "preview_url": "https://www.youtube.com/watch?v=PDSkFeMVNFs",
+                "likes_count": 0
             },
             {
                 "id": 52,
-                "content_id": 16,
+                "content_id": "16",
                 "title": "Sparkle",
                 "artist": "RADWIMPS",
-                "preview_url": "https://www.youtube.com/watch?v=SCQOw1UBsVI"
+                "preview_url": "https://www.youtube.com/watch?v=SCQOw1UBsVI",
+                "likes_count": 0
             }
         ],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 17,
@@ -662,24 +500,18 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 17,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 17,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 18,
@@ -694,52 +526,50 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 18,
-                    "genre_id": 1
-                }
+                "name": "Action"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 18,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             }
         ],
         "osts": [
             {
                 "id": 46,
-                "content_id": 18,
+                "content_id": "18",
                 "title": "Kaikai Kitan",
                 "artist": "Eve",
-                "preview_url": "https://www.youtube.com/watch?v=1tk1pqwrOys"
+                "preview_url": "https://www.youtube.com/watch?v=1tk1pqwrOys",
+                "likes_count": 0
             },
             {
                 "id": 48,
-                "content_id": 18,
+                "content_id": "18",
                 "title": "Ao no Sumika",
                 "artist": "Tatsuya Kitani",
-                "preview_url": "https://www.youtube.com/watch?v=zuoVd2QNxJo"
+                "preview_url": "https://www.youtube.com/watch?v=zuoVd2QNxJo",
+                "likes_count": 0
             },
             {
                 "id": 49,
-                "content_id": 18,
+                "content_id": "18",
                 "title": "SPECIALZ",
                 "artist": "King Gnu",
-                "preview_url": "https://www.youtube.com/watch?v=fhzKLBZJC3w"
+                "preview_url": "https://www.youtube.com/watch?v=fhzKLBZJC3w",
+                "likes_count": 0
             },
             {
                 "id": 50,
-                "content_id": 18,
+                "content_id": "18",
                 "title": "AIZO",
                 "artist": "King Gnu",
-                "preview_url": "https://www.youtube.com/watch?v=zz2a9Q2Wru0"
+                "preview_url": "https://www.youtube.com/watch?v=zz2a9Q2Wru0",
+                "likes_count": 0
             }
         ],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 20,
@@ -754,23 +584,17 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 20,
-                    "genre_id": 1
-                }
+                "name": "Action"
             },
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 20,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 23,
@@ -784,44 +608,29 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 23,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 23,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
         "reviews": [
             {
                 "id": 8,
-                "user_id": 1,
-                "content_id": 23,
                 "rating": 9,
                 "review": "Cerita tentang masa muda, cita-cita, dan cinta pertama yang sangat realistis dan menyentuh hati.",
-                "spoiler": false,
-                "created_at": "2026-08-08T07:31:58.000000Z",
+                "created_at": "2026-08-08 07:31:58",
                 "user": {
-                    "id": 1,
                     "username": "admin",
-                    "email": "admin@gabuthub.com",
-                    "email_verified_at": null,
-                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
-                    "bio": "Administrator of GabutHub. Keeping the fun alive.",
-                    "role": "admin",
-                    "created_at": "2026-08-07T11:21:47.000000Z"
+                    "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
                 }
             }
-        ]
+        ],
+        "avg_rating": 9.5,
+        "reviews_count": 1
     },
     {
         "id": 25,
@@ -836,31 +645,21 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 1,
-                "name": "Action",
-                "pivot": {
-                    "content_id": 25,
-                    "genre_id": 1
-                }
-            },
-            {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 25,
-                    "genre_id": 7
-                }
+                "name": "Action"
             },
             {
                 "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 25,
-                    "genre_id": 2
-                }
+                "name": "Romance"
+            },
+            {
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 26,
@@ -874,24 +673,18 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 26,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 26,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 28,
@@ -905,32 +698,22 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 28,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 28,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 28,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 29,
@@ -944,32 +727,22 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
+                "id": 2,
+                "name": "Romance"
+            },
+            {
                 "id": 3,
-                "name": "Comedy",
-                "pivot": {
-                    "content_id": 29,
-                    "genre_id": 3
-                }
+                "name": "Comedy"
             },
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 29,
-                    "genre_id": 7
-                }
-            },
-            {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 29,
-                    "genre_id": 2
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 30,
@@ -984,31 +757,21 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 3,
-                "name": "Comedy",
-                "pivot": {
-                    "content_id": 30,
-                    "genre_id": 3
-                }
-            },
-            {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 30,
-                    "genre_id": 7
-                }
+                "name": "Comedy"
             },
             {
                 "id": 6,
-                "name": "Slice of Life",
-                "pivot": {
-                    "content_id": 30,
-                    "genre_id": 6
-                }
+                "name": "Slice of Life"
+            },
+            {
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 34,
@@ -1022,32 +785,22 @@ export const MOCK_CONTENTS = [
         "is_featured": 0,
         "genres": [
             {
-                "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 34,
-                    "genre_id": 7
-                }
+                "id": 2,
+                "name": "Romance"
             },
             {
                 "id": 4,
-                "name": "Fantasy",
-                "pivot": {
-                    "content_id": 34,
-                    "genre_id": 4
-                }
+                "name": "Fantasy"
             },
             {
-                "id": 2,
-                "name": "Romance",
-                "pivot": {
-                    "content_id": 34,
-                    "genre_id": 2
-                }
+                "id": 7,
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 35,
@@ -1062,15 +815,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 35,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 36,
@@ -1085,15 +836,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 36,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 37,
@@ -1108,15 +857,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 37,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 38,
@@ -1131,15 +878,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 38,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 39,
@@ -1154,15 +899,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 39,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 40,
@@ -1177,15 +920,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 40,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 41,
@@ -1200,15 +941,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 41,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 42,
@@ -1223,15 +962,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 42,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 43,
@@ -1246,15 +983,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 43,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 44,
@@ -1269,15 +1004,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 44,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 45,
@@ -1292,15 +1025,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 45,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 46,
@@ -1315,15 +1046,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 46,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 47,
@@ -1338,15 +1067,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 47,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 48,
@@ -1361,15 +1088,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 48,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 49,
@@ -1384,15 +1109,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 49,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 50,
@@ -1407,15 +1130,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 50,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 51,
@@ -1430,15 +1151,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 51,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 52,
@@ -1453,15 +1172,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 52,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 53,
@@ -1476,15 +1193,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 53,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 54,
@@ -1499,15 +1214,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 54,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 55,
@@ -1522,15 +1235,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 55,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 56,
@@ -1545,15 +1256,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 56,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 57,
@@ -1568,15 +1277,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 57,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 58,
@@ -1591,15 +1298,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 58,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 59,
@@ -1614,15 +1319,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 59,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 60,
@@ -1637,15 +1340,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 60,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 61,
@@ -1660,15 +1361,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 61,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 62,
@@ -1683,15 +1382,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 62,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 63,
@@ -1706,15 +1403,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 63,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 64,
@@ -1729,15 +1424,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 64,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 65,
@@ -1752,15 +1445,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 65,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 66,
@@ -1775,15 +1466,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 66,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 67,
@@ -1798,15 +1487,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 67,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 69,
@@ -1821,23 +1508,22 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 69,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [
             {
                 "id": 24,
-                "content_id": 69,
+                "content_id": "69",
                 "title": "Love Language",
                 "artist": "Kim Min Seok",
-                "preview_url": "https://www.youtube.com/embed/zHRalE_8n1A"
+                "preview_url": "https://www.youtube.com/embed/zHRalE_8n1A",
+                "likes_count": 0
             }
         ],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 70,
@@ -1852,15 +1538,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 70,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 71,
@@ -1875,15 +1559,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 71,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 73,
@@ -1898,15 +1580,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 73,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 74,
@@ -1921,15 +1601,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 74,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 75,
@@ -1944,15 +1622,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 75,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 76,
@@ -1967,15 +1643,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 76,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 77,
@@ -1990,15 +1664,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 77,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 78,
@@ -2013,15 +1685,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 78,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 79,
@@ -2036,15 +1706,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 79,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 80,
@@ -2059,15 +1727,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 80,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     },
     {
         "id": 81,
@@ -2082,15 +1748,13 @@ export const MOCK_CONTENTS = [
         "genres": [
             {
                 "id": 7,
-                "name": "Drama",
-                "pivot": {
-                    "content_id": 81,
-                    "genre_id": 7
-                }
+                "name": "Drama"
             }
         ],
         "osts": [],
-        "reviews": []
+        "reviews": [],
+        "avg_rating": 9.5,
+        "reviews_count": 0
     }
 ];
 
@@ -2099,27 +1763,31 @@ export const MOCK_POLLS = [
         "id": 1,
         "title": "Best Villain of the Decade",
         "description": "Siapa villain terbaik yang pernah ada di industri pop culture baru-baru ini?",
-        "ends_at": "2026-09-06T11:21:48.000000Z",
+        "ends_at": "2026-09-06 11:21:48",
         "options": [
             {
                 "id": 1,
-                "poll_id": 1,
-                "option_text": "Thanos (Marvel MCU)"
+                "poll_id": "1",
+                "option_text": "Thanos (Marvel MCU)",
+                "votes_count": 10
             },
             {
                 "id": 2,
-                "poll_id": 1,
-                "option_text": "Ryomen Sukuna (Jujutsu Kaisen)"
+                "poll_id": "1",
+                "option_text": "Ryomen Sukuna (Jujutsu Kaisen)",
+                "votes_count": 10
             },
             {
                 "id": 3,
-                "poll_id": 1,
-                "option_text": "Joker (The Dark Knight)"
+                "poll_id": "1",
+                "option_text": "Joker (The Dark Knight)",
+                "votes_count": 10
             },
             {
                 "id": 4,
-                "poll_id": 1,
-                "option_text": "Park Yeon-jin (The Glory)"
+                "poll_id": "1",
+                "option_text": "Park Yeon-jin (The Glory)",
+                "votes_count": 10
             }
         ]
     },
@@ -2127,22 +1795,25 @@ export const MOCK_POLLS = [
         "id": 2,
         "title": "Best Drakor Couple 2024",
         "description": "Pasangan drama korea mana yang paling bikin baper dan gregetan?",
-        "ends_at": "2026-09-06T11:21:48.000000Z",
+        "ends_at": "2026-09-06 11:21:48",
         "options": [
             {
                 "id": 5,
-                "poll_id": 2,
-                "option_text": "Baek Hyun-woo & Hong Hae-in (Queen of Tears)"
+                "poll_id": "2",
+                "option_text": "Baek Hyun-woo & Hong Hae-in (Queen of Tears)",
+                "votes_count": 10
             },
             {
                 "id": 6,
-                "poll_id": 2,
-                "option_text": "Ri Jeong-hyeok & Yoon Se-ri (CLOY)"
+                "poll_id": "2",
+                "option_text": "Ri Jeong-hyeok & Yoon Se-ri (CLOY)",
+                "votes_count": 10
             },
             {
                 "id": 7,
-                "poll_id": 2,
-                "option_text": "Go Dong-man & Choi Ae-ra (Fight For My Way)"
+                "poll_id": "2",
+                "option_text": "Go Dong-man & Choi Ae-ra (Fight For My Way)",
+                "votes_count": 10
             }
         ]
     }
