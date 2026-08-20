@@ -17,15 +17,19 @@ const saveUserToGlobalRegistry = (userObj) => {
     );
     if (!isExist) {
       const formattedUser = {
-        ...userObj,
-        created_at: userObj.created_at || new Date().toISOString().slice(0, 10),
+        id: userObj.id || Date.now(),
+        username: userObj.username,
+        email: userObj.email,
         role: userObj.role || (userObj.email?.includes("admin") || userObj.username === "admin" ? "admin" : "user"),
+        avatar: userObj.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${userObj.username}`,
+        created_at: userObj.created_at || new Date().toISOString().slice(0, 10),
+        bio: userObj.bio || "Member baru GabutHub! 👋",
         is_new: true
       };
       list.unshift(formattedUser);
       localStorage.setItem("registered_users_list", JSON.stringify(list));
       
-      // Store in cookies for cross-tab availability
+      // Store in cookie for cross-tab availability
       document.cookie = `gabuthub_latest_user=${encodeURIComponent(JSON.stringify(formattedUser))}; path=/; max-age=31536000`;
     }
   } catch (e) {}
@@ -39,19 +43,6 @@ const useAuthStore = create((set, get) => ({
     const cleanEmail = (email || "").trim().toLowerCase();
     const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
 
-    try {
-      const res = await API.post("/login", { email, password });
-      if (res.data && (res.data.token || res.data.access_token)) {
-        const token = res.data.token || res.data.access_token;
-        const user = res.data.user || res.data.data;
-        saveUserToGlobalRegistry(user);
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        set({ token, user });
-        return { success: true };
-      }
-    } catch (e) {}
-
     const targetUser = {
       id: Date.now(),
       username: email.includes("@") ? email.split("@")[0] : email,
@@ -61,6 +52,19 @@ const useAuthStore = create((set, get) => ({
       created_at: new Date().toISOString().slice(0, 10),
       bio: "Member GabutHub! 👋"
     };
+
+    try {
+      const res = await API.post("/login", { email, password });
+      if (res.data && (res.data.token || res.data.access_token)) {
+        const token = res.data.token || res.data.access_token;
+        const user = res.data.user || res.data.data || targetUser;
+        saveUserToGlobalRegistry(user);
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ token, user });
+        return { success: true };
+      }
+    } catch (e) {}
 
     saveUserToGlobalRegistry(targetUser);
 
@@ -86,19 +90,19 @@ const useAuthStore = create((set, get) => ({
       is_new: true
     };
 
-    // 1. Save to persistent global registry & cookies FIRST
+    // 1. Unconditionally save to persistent global registry & cookies FIRST!
     saveUserToGlobalRegistry(newUser);
 
-    // 2. Transmit user registration to Railway Cloud Backend API
+    // 2. Transmit to Railway Cloud Backend API if available
     try {
       const res = await API.post("/register", { username: cleanUsername, email: cleanEmail, password });
       if (res.data && (res.data.token || res.data.access_token)) {
         const token = res.data.token || res.data.access_token;
-        const user = res.data.user || res.data.data;
-        saveUserToGlobalRegistry(user || newUser);
+        const user = res.data.user || res.data.data || newUser;
+        saveUserToGlobalRegistry(user);
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user || newUser));
-        set({ token, user: user || newUser });
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ token, user });
         return { success: true };
       }
     } catch (e) {}
