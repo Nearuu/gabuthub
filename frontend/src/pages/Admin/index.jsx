@@ -193,6 +193,17 @@ export default function Admin() {
       if (stored) registeredUsers = JSON.parse(stored);
     } catch (e) {}
 
+    // Check cookies for newly registered user cross-tab
+    try {
+      const cookieMatch = document.cookie.match(/gabuthub_latest_user=([^;]+)/);
+      if (cookieMatch && cookieMatch[1]) {
+        const cookieUser = JSON.parse(decodeURIComponent(cookieMatch[1]));
+        if (cookieUser && cookieUser.email) {
+          registeredUsers.unshift(cookieUser);
+        }
+      }
+    } catch (e) {}
+
     const INITIAL_SYSTEM_USERS = [
       { id: 1, username: "admin", email: "admin@gabuthub.com", role: "admin", created_at: "2024-01-01", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin" },
       { id: 2, username: "RAVASEKAI", email: "ravakubang2@gmail.com", role: "admin", created_at: "2024-01-02", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=RAVASEKAI" },
@@ -200,7 +211,7 @@ export default function Admin() {
       { id: 4, username: "AnimeOtaku", email: "anime@gabuthub.com", role: "user", created_at: "2024-01-04", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=AnimeOtaku" }
     ];
 
-    const combined = [...apiUsers, ...registeredUsers];
+    const combined = [...registeredUsers, ...apiUsers];
     if (combined.length === 0) combined.push(...INITIAL_SYSTEM_USERS);
 
     const deletedIds = getDeletedUserIds();
@@ -219,7 +230,8 @@ export default function Admin() {
       }
     });
 
-    setUsersList(Array.from(map.values()));
+    const finalUsers = Array.from(map.values());
+    setUsersList(finalUsers);
     setLoadingUsers(false);
   };
 

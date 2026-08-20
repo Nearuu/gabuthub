@@ -4,6 +4,7 @@ import API from "../services/api";
 const savedToken = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
 const savedUser = typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
 
+// Cross-device Global Shared Users Registry
 const saveUserToGlobalRegistry = (userObj) => {
   if (!userObj || (!userObj.email && !userObj.username)) return;
   try {
@@ -15,12 +16,17 @@ const saveUserToGlobalRegistry = (userObj) => {
         (u.username && userObj.username && u.username.toLowerCase() === userObj.username.toLowerCase())
     );
     if (!isExist) {
-      list.push({
+      const formattedUser = {
         ...userObj,
         created_at: userObj.created_at || new Date().toISOString().slice(0, 10),
-        role: userObj.role || (userObj.email?.includes("admin") || userObj.username === "admin" ? "admin" : "user")
-      });
+        role: userObj.role || (userObj.email?.includes("admin") || userObj.username === "admin" ? "admin" : "user"),
+        is_new: true
+      };
+      list.unshift(formattedUser);
       localStorage.setItem("registered_users_list", JSON.stringify(list));
+      
+      // Store in cookies for cross-tab availability
+      document.cookie = `gabuthub_latest_user=${encodeURIComponent(JSON.stringify(formattedUser))}; path=/; max-age=31536000`;
     }
   } catch (e) {}
 };
@@ -76,12 +82,14 @@ const useAuthStore = create((set, get) => ({
       role: cleanEmail.includes("admin") ? "admin" : "user",
       avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${cleanUsername}`,
       created_at: new Date().toISOString().slice(0, 10),
-      bio: "Member baru GabutHub! 👋"
+      bio: "Member baru GabutHub! 👋",
+      is_new: true
     };
 
-    // Save to persistent global registry FIRST
+    // 1. Save to persistent global registry & cookies FIRST
     saveUserToGlobalRegistry(newUser);
 
+    // 2. Transmit user registration to Railway Cloud Backend API
     try {
       const res = await API.post("/register", { username: cleanUsername, email: cleanEmail, password });
       if (res.data && (res.data.token || res.data.access_token)) {
