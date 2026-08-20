@@ -162,38 +162,16 @@ export default function Admin() {
 
   const loadUsers = async () => {
     setLoadingUsers(true);
-    let apiUsers = [];
     try {
       const res = await API.get("/admin/users");
-      apiUsers = Array.isArray(res.data) ? res.data : [];
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setUsersList(data);
     } catch (e) {
-      console.error(e);
-      apiUsers = [];
+      console.error("Failed to load admin users from database:", e);
+      setUsersList([]);
+    } finally {
+      setLoadingUsers(false);
     }
-
-    // Merge with persistent registered users created by real user registrations
-    let registeredUsers = [];
-    try {
-      const storedUsers = localStorage.getItem("registered_users_list");
-      if (storedUsers) {
-        registeredUsers = JSON.parse(storedUsers);
-      }
-    } catch (e) {}
-
-    // Combine & remove duplicate emails/usernames
-    const mergedMap = new Map();
-    [...apiUsers, ...registeredUsers].forEach(u => {
-      if (u && (u.email || u.username)) {
-        const key = (u.email || u.username).toLowerCase();
-        if (!mergedMap.has(key)) {
-          mergedMap.set(key, u);
-        }
-      }
-    });
-
-    const finalUsersList = Array.from(mergedMap.values());
-    setUsersList(finalUsersList);
-    setLoadingUsers(false);
   };
 
   const loadPolls = async () => {
@@ -378,13 +356,12 @@ export default function Admin() {
   const loadAdminStats = async () => {
     try {
       const res = await API.get("/admin/stats");
-      if (res.data && (res.data.total_contents || res.data.total_users)) {
+      if (res.data) {
         setAdminStats(res.data);
         return;
       }
     } catch (e) {}
 
-    // Dynamic Real-time Calculation Fallback
     try {
       const [contentsRes, usersRes, postsRes] = await Promise.all([
         API.get("/contents"),
@@ -402,31 +379,19 @@ export default function Admin() {
           reviewCount += c.reviews.length;
         }
       });
-      if (reviewCount === 0) reviewCount = contentsData.length * 3;
-
-      let extraUsers = [];
-      try {
-        const storedUsers = localStorage.getItem("registered_users_list");
-        if (storedUsers) extraUsers = JSON.parse(storedUsers);
-      } catch (e) {}
-
-      const totalUniqueUsers = new Set([
-        ...usersData.map(u => u.email?.toLowerCase()),
-        ...extraUsers.map(u => u.email?.toLowerCase())
-      ]).size || usersData.length || 4;
 
       setAdminStats({
-        total_contents: contentsData.length || 68,
-        total_users: totalUniqueUsers,
-        total_reviews: reviewCount || 28,
-        total_posts: postsData.length || 15
+        total_contents: contentsData.length,
+        total_users: usersData.length,
+        total_reviews: reviewCount,
+        total_posts: postsData.length
       });
     } catch (err) {
       setAdminStats({
-        total_contents: 68,
-        total_users: 4,
-        total_reviews: 28,
-        total_posts: 15
+        total_contents: 0,
+        total_users: 0,
+        total_reviews: 0,
+        total_posts: 0
       });
     }
   };
