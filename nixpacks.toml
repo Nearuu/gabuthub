@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = [
+  'php82',
+  'php82Extensions.pdo_mysql',
+  'php82Extensions.pdo_pgsql',
+  'php82Extensions.sqlite3',
+  'php82Packages.composer'
+]
+
+[phases.build]
+cmds = [
+  'cd backend && composer install --no-dev --optimize-autoloader',
+  'cd backend && php artisan config:cache',
+  'cd backend && php artisan route:cache'
+]
+
+[start]
+cmd = 'cd backend && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}'
