@@ -18,9 +18,20 @@ const defaultAdminUser = {
   ]
 };
 
+const savedToken = localStorage.getItem("token");
+const savedUser = localStorage.getItem("user");
+
 const useAuthStore = create((set, get) => ({
-  user: JSON.parse(localStorage.getItem("user")) || defaultAdminUser,
-  token: localStorage.getItem("token") || "cloud-admin-token-2026",
+  token: savedToken || null,
+  user: savedUser ? JSON.parse(savedUser) : null,
+
+  loginAsAdmin: () => {
+    const adminToken = "cloud-admin-token-2026";
+    localStorage.setItem("token", adminToken);
+    localStorage.setItem("user", JSON.stringify(defaultAdminUser));
+    set({ token: adminToken, user: defaultAdminUser });
+    return { success: true };
+  },
 
   login: async (email, password) => {
     try {
@@ -31,14 +42,13 @@ const useAuthStore = create((set, get) => ({
       set({ token, user });
       return { success: true };
     } catch (e) {
-      // Cloud Fallback Login
       const isLoginAdmin = email === "admin" || email === "admin@gabuthub.com" || email === "ravakubang2@gmail.com";
       const targetUser = isLoginAdmin
         ? defaultAdminUser
         : {
             id: Date.now(),
-            username: email.split("@")[0] || "User",
-            email: email,
+            username: email.includes("@") ? email.split("@")[0] : email,
+            email: email.includes("@") ? email : `${email}@gabuthub.com`,
             role: "user",
             avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
             bio: "Pecinta hiburan sejati GabutHub ✨",
@@ -62,11 +72,10 @@ const useAuthStore = create((set, get) => ({
       set({ token, user });
       return { success: true };
     } catch (e) {
-      // Cloud Fallback Register
       const newUser = {
         id: Date.now(),
-        username: username || email.split("@")[0],
-        email: email,
+        username: username || (email ? email.split("@")[0] : "User"),
+        email: email || "user@gabuthub.com",
         role: "user",
         avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
         bio: "Member baru GabutHub! 👋",
@@ -90,6 +99,7 @@ const useAuthStore = create((set, get) => ({
   },
 
   fetchUser: async () => {
+    if (!get().token) return;
     try {
       const res = await API.get("/user");
       if (res.data) {
@@ -97,27 +107,21 @@ const useAuthStore = create((set, get) => ({
         set({ user: res.data });
       }
     } catch (e) {
-      // Preserve current user if API fails
-      if (!get().user) {
-        set({ user: defaultAdminUser, token: "cloud-admin-token-2026" });
-      }
+      // Keep current user state
     }
   },
 
   updateProfile: async (bio, avatar) => {
+    const currentUser = get().user || defaultAdminUser;
+    const updatedUser = { ...currentUser, bio: bio || currentUser.bio, avatar: avatar || currentUser.avatar };
+    
     try {
-      const res = await API.put("/user/profile", { bio, avatar });
-      set({ user: res.data.user });
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      return { success: true };
-    } catch (e) {
-      // Client-side fallback update
-      const currentUser = get().user || defaultAdminUser;
-      const updatedUser = { ...currentUser, bio: bio || currentUser.bio, avatar: avatar || currentUser.avatar };
-      set({ user: updatedUser });
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      return { success: true };
-    }
+      await API.put("/user/profile", { bio, avatar });
+    } catch (e) {}
+
+    set({ user: updatedUser });
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    return { success: true };
   },
 }));
 
