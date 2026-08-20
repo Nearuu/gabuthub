@@ -15,6 +15,10 @@ export default function Navbar() {
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Mobile Search Overlay Toggle State
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
@@ -34,8 +38,10 @@ export default function Navbar() {
   useEffect(() => {
     if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
     const t = setTimeout(async () => {
-      try { const r = await API.get(`/contents?search=${searchQuery}`); setSearchResults(Array.isArray(r.data) ? r.data.slice(0, 5) : []); }
-      catch (e) { console.error(e); }
+      try { 
+        const r = await API.get(`/contents?search=${searchQuery}`); 
+        setSearchResults(Array.isArray(r.data) ? r.data.slice(0, 5) : []); 
+      } catch (e) { console.error(e); }
     }, 300);
     return () => clearTimeout(t);
   }, [searchQuery]);
@@ -50,7 +56,12 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  const handleResultClick = (id) => { setSearchQuery(""); setShowDropdown(false); navigate(`/detail/${id}`); };
+  const handleResultClick = (id) => { 
+    setSearchQuery(""); 
+    setShowDropdown(false); 
+    setShowMobileSearch(false);
+    navigate(`/detail/${id}`); 
+  };
 
   const handleSurpriseMe = async () => {
     setShowSurpriseModal(true); setIsSpinning(true); setSurpriseResult(null);
@@ -62,52 +73,95 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-wm-border bg-wm-card/95 backdrop-blur-md transition-colors duration-300 shadow-sm">
-      <div className="mx-auto flex h-16 max-w-[1700px] items-center justify-between px-6">
-        <div className="flex items-center gap-4">
-          <button onClick={toggleSidebar} className="p-2 hover:bg-wm-bg rounded-xl text-wm-text hover:text-wm-texth transition cursor-pointer"><Menu size={20} /></button>
+      <div className="mx-auto flex h-16 max-w-[1700px] items-center justify-between px-3 sm:px-6">
+        
+        {/* LEFT SECTION: Hamburger & Logo */}
+        <div className="flex items-center gap-2 sm:gap-4">
+          <button 
+            onClick={toggleSidebar} 
+            className="p-2 hover:bg-wm-bg rounded-xl text-wm-text hover:text-wm-texth transition cursor-pointer"
+            aria-label="Menu Sidebar"
+          >
+            <Menu size={22} />
+          </button>
+          
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-wm-accent text-black shadow-lg shadow-wm-accent/20">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
             </div>
-            <div className="flex items-center text-lg"><span className="font-black text-wm-texth">Gabut</span><span className="font-black text-wm-accent">Hub</span></div>
+            <div className="flex items-center text-base sm:text-lg">
+              <span className="font-black text-wm-texth">Gabut</span>
+              <span className="font-black text-wm-accent">Hub</span>
+            </div>
           </Link>
         </div>
 
-        <div ref={dropdownRef} className="relative hidden w-[420px] md:block">
+        {/* CENTER SECTION: Search Input (Desktop) */}
+        <div ref={dropdownRef} className="relative hidden w-[320px] lg:w-[420px] md:block">
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-wm-text/45" />
-          <input type="text" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true); }} onFocus={() => setShowDropdown(true)}
-            placeholder="Search movie, anime, drakor, actor..." className="w-full rounded-full border border-wm-border bg-wm-bg py-2.5 pl-11 pr-10 text-xs text-wm-texth placeholder-wm-text/40 outline-none transition focus:border-wm-accent focus:ring-1 focus:ring-wm-accent" />
+          <input 
+            type="text" 
+            value={searchQuery} 
+            onChange={(e) => { setSearchQuery(e.target.value); setShowDropdown(true); }} 
+            onFocus={() => setShowDropdown(true)}
+            placeholder="Search movie, anime, drakor, actor..." 
+            className="w-full rounded-full border border-wm-border bg-wm-bg py-2.5 pl-11 pr-10 text-xs text-wm-texth placeholder-wm-text/40 outline-none transition focus:border-wm-accent focus:ring-1 focus:ring-wm-accent" 
+          />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black px-1.5 py-0.5 rounded bg-wm-card text-wm-text/40 border border-wm-border/50">/</div>
           <AnimatePresence>
             {showDropdown && searchQuery.trim().length >= 2 && (
               <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute left-0 right-0 mt-2 rounded-xl border border-wm-border bg-wm-card p-2 shadow-2xl z-50">
-                {searchResults.length > 0 ? (<div className="flex flex-col gap-1">{searchResults.map((item) => (
-                  <button key={item.id} onClick={() => handleResultClick(item.id)} className="flex items-center gap-3 rounded-lg p-2 text-left transition hover:bg-wm-bg cursor-pointer">
-                    <img src={item.poster_url} alt="" className="h-10 w-8 rounded object-cover border border-wm-border" />
-                    <div className="flex-1 overflow-hidden"><p className="truncate text-sm font-semibold text-wm-texth">{item.title}</p>
-                      <div className="flex items-center gap-2 text-[10px] text-wm-text/60 capitalize"><span className="rounded bg-wm-bg px-1.5 py-0.5 border border-wm-border">{item.type}</span><span> {item.avg_rating || "N/A"}</span></div>
-                    </div></button>))}</div>) : (<p className="p-3 text-center text-xs text-wm-text/50">Tidak ada hasil.</p>)}
+                {searchResults.length > 0 ? (
+                  <div className="flex flex-col gap-1">
+                    {searchResults.map((item) => (
+                      <button key={item.id} onClick={() => handleResultClick(item.id)} className="flex items-center gap-3 rounded-lg p-2 text-left transition hover:bg-wm-bg cursor-pointer">
+                        <img src={item.poster_url} alt="" className="h-10 w-8 rounded object-cover border border-wm-border" />
+                        <div className="flex-1 overflow-hidden">
+                          <p className="truncate text-sm font-semibold text-wm-texth">{item.title}</p>
+                          <div className="flex items-center gap-2 text-[10px] text-wm-text/60 capitalize">
+                            <span className="rounded bg-wm-bg px-1.5 py-0.5 border border-wm-border">{item.type}</span>
+                            <span>⭐ {item.avg_rating || "N/A"}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="p-3 text-center text-xs text-wm-text/50">Tidak ada hasil.</p>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* RIGHT SECTION: Mobile Search Icon + Theme Switcher + Surprise + Profile */}
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          
+          {/* Mobile Search Button (Visible only on HP) */}
+          <button
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="md:hidden flex items-center justify-center h-9 w-9 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:text-wm-accent cursor-pointer"
+            aria-label="Cari Film"
+          >
+            <Search size={16} />
+          </button>
+
           {/* Theme Switcher Button */}
           <button
             onClick={toggleTheme}
-            className="flex items-center justify-center h-10 w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:border-wm-accent hover:text-wm-accent cursor-pointer shadow-sm"
-            title={darkMode ? "Switch to Light Mode" : "Switch to Night Mode"}
+            className="flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:border-wm-accent hover:text-wm-accent cursor-pointer shadow-sm"
+            title={darkMode ? "Mode Terang" : "Mode Gelap"}
           >
             {darkMode ? (
-              <Sun size={17} className="text-yellow-400" />
+              <Sun size={16} className="text-yellow-400" />
             ) : (
-              <Moon size={17} className="text-slate-600" />
+              <Moon size={16} className="text-slate-600" />
             )}
           </button>
 
+          {/* Notification Bell (If logged in) */}
           {token && (
-            <div ref={notifRef} className="relative">
+            <div ref={notifRef} className="relative hidden sm:block">
               <button onClick={() => setShowNotifications(!showNotifications)} className="relative flex items-center justify-center h-10 w-10 rounded-full border border-wm-border bg-wm-bg text-wm-text transition hover:text-wm-texth cursor-pointer">
                 <Bell size={16} /><span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-wm-accent"></span>
               </button>
@@ -120,15 +174,21 @@ export default function Navbar() {
             </div>
           )}
 
-          <button onClick={handleSurpriseMe} className="flex items-center gap-2 rounded-full bg-wm-accent hover:bg-wm-accent-hover px-4 py-2.5 text-xs font-black text-black transition hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md shadow-wm-accent/10">
-            <Dice5 size={14} /><span>Surprise Me</span>
+          {/* Surprise Me Button (Compacted for HP) */}
+          <button 
+            onClick={handleSurpriseMe} 
+            className="flex items-center gap-1.5 rounded-full bg-wm-accent hover:bg-wm-accent-hover px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-black text-black transition hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md shadow-wm-accent/10"
+          >
+            <Dice5 size={14} />
+            <span className="hidden sm:inline">Surprise Me</span>
           </button>
 
+          {/* Profile Dropdown / Login Button */}
           {token && activeUser ? (
             <div ref={userMenuRef} className="relative">
-              <div onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center gap-2 rounded-full border border-wm-border bg-wm-bg p-1 pr-3 transition hover:bg-wm-border">
-                <img src={activeUser.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"} alt={activeUser.username} className="h-8 w-8 rounded-full object-cover border border-wm-border" />
-                <ChevronDown size={14} className="text-wm-text/50" />
+              <div onClick={() => setShowUserMenu(!showUserMenu)} className="flex cursor-pointer items-center gap-1.5 rounded-full border border-wm-border bg-wm-bg p-1 pr-2 sm:pr-3 transition hover:bg-wm-border">
+                <img src={activeUser.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"} alt={activeUser.username} className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-wm-border" />
+                <ChevronDown size={12} className="text-wm-text/50" />
               </div>
               <AnimatePresence>{showUserMenu && (
                 <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} className="absolute right-0 mt-2 w-56 rounded-xl border border-wm-border bg-wm-card p-2 shadow-2xl z-50">
@@ -155,10 +215,62 @@ export default function Navbar() {
               )}</AnimatePresence>
             </div>
           ) : (
-            <Link to="/login" className="rounded-full border border-wm-accent/30 bg-wm-accent/10 px-4 py-2.5 text-xs font-black text-wm-accent transition hover:bg-wm-accent hover:text-black cursor-pointer">Masuk</Link>
+            <Link to="/login" className="rounded-full border border-wm-accent/30 bg-wm-accent/10 px-3.5 py-2 text-xs font-black text-wm-accent transition hover:bg-wm-accent hover:text-black cursor-pointer">Masuk</Link>
           )}
         </div>
       </div>
+
+      {/* MOBILE SEARCH OVERLAY (HANYA MUNCUL DI HP SAAT DIKLIK) */}
+      <AnimatePresence>
+        {showMobileSearch && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-wm-border bg-wm-card p-3 shadow-xl"
+          >
+            <div className="relative">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-wm-text/50" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search movie, anime, drakor..."
+                className="w-full rounded-full border border-wm-border bg-wm-bg py-2 pl-9 pr-8 text-xs text-wm-texth outline-none focus:border-wm-accent"
+                autoFocus
+              />
+              <button
+                onClick={() => setShowMobileSearch(false)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-wm-text/50 p-1"
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {searchQuery.trim().length >= 2 && (
+              <div className="mt-2 space-y-1">
+                {searchResults.length > 0 ? (
+                  searchResults.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleResultClick(item.id)}
+                      className="flex items-center gap-3 w-full rounded-lg p-2 text-left transition hover:bg-wm-bg cursor-pointer"
+                    >
+                      <img src={item.poster_url} alt="" className="h-10 w-8 rounded object-cover border border-wm-border" />
+                      <div className="flex-1 overflow-hidden">
+                        <p className="truncate text-xs font-bold text-wm-texth">{item.title}</p>
+                        <span className="text-[9px] text-wm-accent font-semibold">{item.type}</span>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <p className="p-2 text-center text-xs text-wm-text/50">Tidak ada hasil ditemukan.</p>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* SURPRISE ME MODAL */}
       <AnimatePresence>
