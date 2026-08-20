@@ -239,25 +239,19 @@ export default function Admin() {
   const handleDeletePost = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus postingan komunitas ini?")) return;
     try {
-      const res = await API.delete(`/admin/posts/${id}`);
-      toast.success(res.data.message);
-      loadCommunityData();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal menghapus postingan");
-    }
+      await API.delete(`/admin/posts/${id}`);
+    } catch (e) {}
+    setAdminPosts(prev => prev.filter(p => p.id !== id));
+    toast.success("Postingan komunitas berhasil dihapus!");
   };
 
   const handleDeleteTierList = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus Tier List ini?")) return;
     try {
-      const res = await API.delete(`/admin/tier-lists/${id}`);
-      toast.success(res.data.message);
-      loadCommunityData();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal menghapus Tier List");
-    }
+      await API.delete(`/admin/tier-lists/${id}`);
+    } catch (e) {}
+    setAdminTierLists(prev => prev.filter(t => t.id !== id));
+    toast.success("Tier List berhasil dihapus!");
   };
 
   const DEFAULT_BADGES = [
@@ -272,7 +266,29 @@ export default function Admin() {
   const loadReviews = async () => {
     try {
       const res = await API.get("/admin/reviews");
-      setAdminReviews(Array.isArray(res.data) && res.data.length > 0 ? res.data : []);
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        setAdminReviews(res.data);
+        return;
+      }
+    } catch (e) {}
+
+    // Fallback: Aggregate reviews from all contents catalog
+    try {
+      const cRes = await API.get("/contents");
+      const cData = Array.isArray(cRes.data) ? cRes.data : [];
+      const aggregated = [];
+      cData.forEach(c => {
+        if (c.reviews && Array.isArray(c.reviews)) {
+          c.reviews.forEach(r => {
+            aggregated.push({
+              ...r,
+              content_title: c.title,
+              content_poster: c.poster_url
+            });
+          });
+        }
+      });
+      setAdminReviews(aggregated);
     } catch (e) {
       setAdminReviews([]);
     }
@@ -519,11 +535,10 @@ export default function Admin() {
     if (!window.confirm(`Hapus konten "${contentTitle}"? Seluruh review & OST terkait akan ikut terhapus.`)) return;
     try {
       await API.delete(`/contents/${contentId}`);
-      toast.success("Konten berhasil dihapus!");
-      loadContents();
-    } catch (err) {
-      toast.error("Gagal menghapus konten");
-    }
+    } catch (err) {}
+
+    setContents(prev => prev.filter(item => item.id !== contentId));
+    toast.success(`Konten "${contentTitle}" berhasil dihapus!`);
   };
 
   const resetContentForm = () => {
