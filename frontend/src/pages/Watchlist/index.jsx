@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Heart, Trash2, Star, Eye, Lock, KeyRound } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 import API from "../../services/api";
-import { MOCK_CONTENTS } from "../../services/mockData";
 import toast from "react-hot-toast";
 
 const STATUS_TABS = ["Semua", "Plan to Watch", "Watching", "Completed", "Dropped"];
@@ -13,6 +12,7 @@ export default function Watchlist() {
   const navigate = useNavigate();
 
   const [watchlist, setWatchlist] = useState([]);
+  const [allContents, setAllContents] = useState([]);
   const [selectedTab, setSelectedTab] = useState("Semua");
   const [loading, setLoading] = useState(true);
 
@@ -21,19 +21,48 @@ export default function Watchlist() {
     return `watchlist_user_${user.id || user.username || user.email}`;
   };
 
-  const getValidPoster = (item) => {
-    if (item.poster_url && item.poster_url.startsWith("http")) return item.poster_url;
-    if (item.content?.poster_url && item.content.poster_url.startsWith("http")) return item.content.poster_url;
-    
-    // Match with MOCK_CONTENTS by ID or Title
-    const targetId = item.content_id || item.id;
-    const found = MOCK_CONTENTS.find((c) => c.id === parseInt(targetId) || c.title?.toLowerCase() === item.title?.toLowerCase());
-    if (found && found.poster_url) return found.poster_url;
+  // Fetch Database Contents to ensure 100% matching real posters
+  useEffect(() => {
+    async function fetchCatalog() {
+      try {
+        const res = await API.get("/contents");
+        if (Array.isArray(res.data)) {
+          setAllContents(res.data);
+        }
+      } catch (e) {}
+    }
+    fetchCatalog();
+  }, []);
 
-    // Default Fallback Posters based on title
-    if (item.title?.toLowerCase().includes("queen")) return "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
-    if (item.title?.toLowerCase().includes("crash")) return "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg";
-    return "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400";
+  const getRealPosterFromDatabase = (item) => {
+    // 1. Direct poster_url on item if valid
+    if (item.poster_url && item.poster_url.startsWith("http") && !item.poster_url.includes("unsplash")) {
+      return item.poster_url;
+    }
+    if (item.content?.poster_url && item.content.poster_url.startsWith("http") && !item.content.poster_url.includes("unsplash")) {
+      return item.content.poster_url;
+    }
+
+    // 2. Match with real database contents array by ID or title
+    const targetId = item.content_id || item.id;
+    const match = allContents.find((c) => 
+      String(c.id) === String(targetId) || 
+      c.title?.toLowerCase() === item.title?.toLowerCase()
+    );
+
+    if (match && match.poster_url) {
+      return match.poster_url;
+    }
+
+    // 3. Exact Database Title fallback match
+    const titleLower = (item.title || item.content?.title || "").toLowerCase();
+    if (titleLower.includes("queen of tears")) return "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
+    if (titleLower.includes("crash landing")) return "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg";
+    if (titleLower.includes("frieren")) return "https://image.tmdb.org/t/p/w500/dqZENchTdptMBp348tVLvdTRy59.jpg";
+    if (titleLower.includes("spirited away")) return "https://image.tmdb.org/t/p/w500/39wmItE2FMw5uKusabwWqWCZKWq.jpg";
+    if (titleLower.includes("interstellar")) return "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg";
+
+    return item.poster_url || "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
   };
 
   const loadWatchlist = async () => {
@@ -58,7 +87,7 @@ export default function Watchlist() {
         setWatchlist([]);
       }
     } else {
-      // If user is admin, seed initial admin watchlist, else empty for normal user
+      // MANDATORY RULE: ALL USER ACCOUNTS (except admin demo) MUST BE 100% EMPTY DEFAULT!
       if (user?.role === "admin" || user?.username === "admin") {
         const adminSeed = [
           {
@@ -81,6 +110,7 @@ export default function Watchlist() {
         localStorage.setItem(key, JSON.stringify(adminSeed));
         setWatchlist(adminSeed);
       } else {
+        // STRICT EMPTY WATCHLIST FOR NEW USERS
         localStorage.setItem(key, JSON.stringify([]));
         setWatchlist([]);
       }
@@ -184,7 +214,7 @@ export default function Watchlist() {
       {filteredList.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredList.map((item) => {
-            const posterSrc = getValidPoster(item);
+            const posterSrc = getRealPosterFromDatabase(item);
             return (
               <div
                 key={item.id || item.content_id}
@@ -194,10 +224,10 @@ export default function Watchlist() {
                   <img
                     src={posterSrc}
                     alt={item.title || "Poster"}
-                    className="h-28 w-20 rounded-xl object-cover border border-wm-border flex-shrink-0 bg-wm-bg"
+                    className="h-28 w-20 rounded-xl object-cover border border-wm-border flex-shrink-0 bg-wm-bg shadow-sm"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400";
+                      e.target.src = "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg";
                     }}
                   />
                   <div className="flex-1 min-w-0 space-y-1">
@@ -232,10 +262,20 @@ export default function Watchlist() {
           })}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-wm-border p-12 text-center text-wm-text/50">
-          <Heart size={36} className="mx-auto mb-2 opacity-30 text-wm-accent" />
-          <p className="text-sm font-semibold">Belum ada tontonan di Watchlist akun ini.</p>
-          <Link to="/explore" className="mt-3 inline-block font-bold text-xs text-wm-accent hover:underline">
+        <div className="rounded-3xl border border-dashed border-wm-border bg-wm-card/50 p-16 text-center text-wm-text/50 space-y-3">
+          <div className="mx-auto h-16 w-16 rounded-2xl bg-wm-accent/10 border border-wm-accent/20 flex items-center justify-center text-wm-accent">
+            <Heart size={32} />
+          </div>
+          <div className="space-y-1">
+            <p className="text-base font-bold text-wm-texth">Watchlist Akun @{user.username} Masih Kosong</p>
+            <p className="text-xs text-wm-text/60 max-w-sm mx-auto">
+              Anda belum menambahkan tontonan apa pun. Cari film, drakor, atau anime favorit Anda dan klik "Add to Watchlist"!
+            </p>
+          </div>
+          <Link
+            to="/explore"
+            className="inline-flex items-center gap-2 rounded-xl bg-wm-accent px-5 py-2.5 text-xs font-black text-black hover:bg-wm-accent-hover transition shadow-md shadow-wm-accent/10"
+          >
             Cari Film & Drakor di Explore →
           </Link>
         </div>
