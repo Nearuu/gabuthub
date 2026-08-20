@@ -211,7 +211,7 @@ export default function Admin() {
       { id: 4, username: "AnimeOtaku", email: "anime@gabuthub.com", role: "user", created_at: "2024-01-04", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=AnimeOtaku" }
     ];
 
-    const combined = [...registeredUsers, ...apiUsers];
+    const combined = [...apiUsers, ...registeredUsers];
     if (combined.length === 0) combined.push(...INITIAL_SYSTEM_USERS);
 
     const deletedIds = getDeletedUserIds();
