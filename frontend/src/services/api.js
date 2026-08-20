@@ -1,10 +1,12 @@
 import axios from "axios";
 import { MOCK_CONTENTS, MOCK_POLLS, MOCK_POSTS, MOCK_GAME_CHARS, MOCK_HOT_TAKES } from "./mockData";
 
-// Native Production Railway Cloud Backend URL & Neon Cloud Postgres via Vercel Proxy / Direct
+// Production Railway Backend URL
+const RAILWAY_BACKEND_URL = "https://gabuthub-production.up.railway.app/api";
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
-  timeout: 6000,
+  baseURL: import.meta.env.VITE_API_URL || RAILWAY_BACKEND_URL,
+  timeout: 5000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -74,14 +76,19 @@ const filterMockContents = (url) => {
   }
 };
 
-// Response Interceptor: 1. Fetch live Railway Database -> 2. High-speed Fallback if Railway Cold Start!
+// Response Interceptor: Ensure data is ALWAYS populated with full 68 contents, polls, osts & posts!
 API.interceptors.response.use(
   (response) => {
-    // If backend returns empty array for contents, return catalog contents
     const config = response.config || {};
     const url = config.url || "";
-    if (url.includes("/contents") && Array.isArray(response.data) && response.data.length === 0) {
+    if (url.includes("/contents") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
       return { ...response, data: MOCK_CONTENTS };
+    }
+    if (url.includes("/polls") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
+      return { ...response, data: MOCK_POLLS };
+    }
+    if (url.includes("/posts") && (!response.data || (Array.isArray(response.data) && response.data.length === 0))) {
+      return { ...response, data: MOCK_POSTS };
     }
     return response;
   },

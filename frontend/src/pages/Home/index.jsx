@@ -49,7 +49,15 @@ export default function Home() {
       try {
         setLoading(true);
         const resContents = await API.get("/contents");
-        const dataContents = resContents.data || [];
+        let dataContents = Array.isArray(resContents.data) && resContents.data.length > 0 
+          ? resContents.data 
+          : [];
+
+        if (dataContents.length === 0) {
+          const { MOCK_CONTENTS } = await import("../../services/mockData");
+          dataContents = MOCK_CONTENTS;
+        }
+
         setContents(dataContents);
 
         // Priority 1: Content explicitly set as featured by Admin (is_featured === true / 1)
@@ -64,13 +72,11 @@ export default function Home() {
 
         // Sort all contents by rating & review count for Trending
         const sortedByRating = [...dataContents].sort((a, b) => {
-          const rateA = parseFloat(a.avg_rating || 0);
-          const rateB = parseFloat(b.avg_rating || 0);
+          const rateA = parseFloat(a.avg_rating || a.rating || 0);
+          const rateB = parseFloat(b.avg_rating || b.rating || 0);
           return rateB - rateA;
         });
 
-        // Rank 1: Featured Content pilihan Admin
-        // Rank 2-6: Konten berating tertinggi lainnya
         let trendingList = [];
         if (featuredItem) {
           const others = sortedByRating.filter(item => item.id !== featuredItem.id);
@@ -81,32 +87,48 @@ export default function Home() {
 
         setTrending(trendingList);
 
-        // Fetch Community Posts Real dari Database
+        // Fetch Community Posts
         try {
           const resPosts = await API.get("/posts");
-          setPosts(resPosts.data || []);
+          const pData = Array.isArray(resPosts.data) && resPosts.data.length > 0 ? resPosts.data : [];
+          if (pData.length > 0) {
+            setPosts(pData);
+          } else {
+            const { MOCK_POSTS } = await import("../../services/mockData");
+            setPosts(MOCK_POSTS);
+          }
         } catch (e) {
-          setPosts([]);
+          const { MOCK_POSTS } = await import("../../services/mockData");
+          setPosts(MOCK_POSTS);
         }
 
         // Poll Data Real
-        const resPolls = await API.get("/polls");
-        if (resPolls.data && resPolls.data.length > 0) {
-          const activePoll = resPolls.data[0];
+        try {
+          const resPolls = await API.get("/polls");
+          let activePoll = Array.isArray(resPolls.data) && resPolls.data.length > 0 ? resPolls.data[0] : null;
+          if (!activePoll) {
+            const { MOCK_POLLS } = await import("../../services/mockData");
+            activePoll = MOCK_POLLS[0];
+          }
           setPoll(activePoll);
 
-          const resultsMap = {};
-          const totalOptionVotes = activePoll.options?.reduce((acc, opt) => acc + (opt.votes_count || 0), 0) || 0;
-          
-          activePoll.options?.forEach((opt, idx) => {
-            if (totalOptionVotes > 0) {
-              resultsMap[opt.id] = Math.round(((opt.votes_count || 0) / totalOptionVotes) * 100);
-            } else {
-              const defaultPcts = [42, 31, 17, 10];
-              resultsMap[opt.id] = defaultPcts[idx] || 10;
-            }
-          });
-          setVotingResults(resultsMap);
+          if (activePoll && activePoll.options) {
+            const resultsMap = {};
+            const totalOptionVotes = activePoll.options.reduce((acc, opt) => acc + (opt.votes_count || 0), 0);
+            
+            activePoll.options.forEach((opt, idx) => {
+              if (totalOptionVotes > 0) {
+                resultsMap[opt.id] = Math.round(((opt.votes_count || 0) / totalOptionVotes) * 100);
+              } else {
+                const defaultPcts = [40, 30, 20, 10];
+                resultsMap[opt.id] = defaultPcts[idx] || 10;
+              }
+            });
+            setVotingResults(resultsMap);
+          }
+        } catch (e) {
+          const { MOCK_POLLS } = await import("../../services/mockData");
+          setPoll(MOCK_POLLS[0]);
         }
       } catch (err) {
         console.error("Failed loading home data:", err);
