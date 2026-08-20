@@ -28,4 +28,4 @@ RUN mkdir -p storage/framework/cache storage/framework/sessions storage/framewor
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
+CMD ["sh", "-c", "php artisan config:clear && php artisan route:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"]
