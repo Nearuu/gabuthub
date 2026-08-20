@@ -1,12 +1,25 @@
 import axios from "axios";
 import { MOCK_CONTENTS, MOCK_POLLS, MOCK_POSTS, MOCK_GAME_CHARS, MOCK_HOT_TAKES } from "./mockData";
 
+// Native Production Railway Cloud Backend URL & Neon Cloud Postgres
+const RAILWAY_BACKEND_URL = "https://gabuthub-production.up.railway.app/api";
+
 const API = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || RAILWAY_BACKEND_URL,
+  timeout: 8000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
+});
+
+// Auto attach Authorization Bearer Token if logged in
+API.interceptors.request.use((config) => {
+  const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 const MOCK_USERS = [
@@ -16,10 +29,7 @@ const MOCK_USERS = [
   { id: 4, username: "AnimeOtaku", email: "anime@gabuthub.com", role: "user", created_at: "2024-01-04", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=AnimeOtaku" }
 ];
 
-const MOCK_WATCHLIST = [
-  { id: 1, content_id: 1, title: "Queen of Tears", type: "Drakor", poster_url: "https://image.tmdb.org/t/p/w500/1X7Uj0lq1w7qWvV8gWnJv1.jpg", pivot: { status: "Completed", personal_rating: 10 } },
-  { id: 2, content_id: 2, title: "Crash Landing on You", type: "Drakor", poster_url: "https://image.tmdb.org/t/p/w500/iS7Uj0lq1w7qWvV8gWnJv2.jpg", pivot: { status: "Watching", personal_rating: 9 } }
-];
+const MOCK_WATCHLIST = [];
 
 const MOCK_TIER_LISTS = [
   { id: 1, title: "Tier Drakor Romance Terbaik 2024", user: { username: "admin" }, tiers: { S: ["Queen of Tears", "Crash Landing on You"], A: ["The Glory", "Lovely Runner"], B: ["Goblin"] } }
@@ -73,62 +83,41 @@ const filterMockContents = (url) => {
   }
 };
 
-// Always serve direct imported MySQL data for 100% stability
-API.interceptors.request.use((config) => {
-  const url = config.url || "";
-  
-  if (url.includes("/contents")) {
-    const data = filterMockContents(url);
-    config.adapter = () => Promise.resolve({ data, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/polls")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_POLLS, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/posts")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_POSTS, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/flag-characters")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_GAME_CHARS, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/hot-takes")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_HOT_TAKES, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/watchlist")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_WATCHLIST, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/tier-lists") || url.includes("/tierlist")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_TIER_LISTS, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/users") || url.includes("/admin/users")) {
-    config.adapter = () => Promise.resolve({ data: MOCK_USERS, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/genres")) {
-    const genres = [
-      { id: 1, name: "Action" }, { id: 2, name: "Romance" }, { id: 3, name: "Comedy" },
-      { id: 4, name: "Drama" }, { id: 5, name: "Sci-Fi" }, { id: 6, name: "Fantasy" },
-      { id: 7, name: "Thriller" }, { id: 8, name: "Horror" }, { id: 9, name: "Mystery" }
-    ];
-    config.adapter = () => Promise.resolve({ data: genres, status: 200, statusText: "OK", headers: {}, config });
-  } else if (url.includes("/games/guess-ost")) {
-    config.adapter = () => Promise.resolve({
-      data: {
-        seconds_per_question: 15,
-        questions: [
-          {
-            id: 1,
-            preview_url: "https://www.youtube.com/watch?v=32wDFCM7iSI",
-            options: [
-              { id: 1, text: "Give You My Heart - IU", is_correct: true },
-              { id: 2, text: "Love You With All My Heart - Crush", is_correct: false },
-              { id: 3, text: "Adrenaline - Solar", is_correct: false },
-              { id: 4, text: "Yuusha - YOASOBI", is_correct: false }
-            ]
-          }
-        ]
-      },
-      status: 200,
-      statusText: "OK",
-      headers: {},
-      config
-    });
-  } else {
-    // Default mock success adapter for any POST/PUT/DELETE
-    config.adapter = () => Promise.resolve({ data: { message: "Berhasil" }, status: 200, statusText: "OK", headers: {}, config });
-  }
+// Response Interceptor: Priority 1 Online Database Railway & Neon Postgres, Fallback Priority 2 Adapter
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const config = error.config || {};
+    const url = config.url || "";
 
-  return config;
-});
+    if (url.includes("/contents")) {
+      const data = filterMockContents(url);
+      return Promise.resolve({ data, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/polls")) {
+      return Promise.resolve({ data: MOCK_POLLS, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/posts")) {
+      return Promise.resolve({ data: MOCK_POSTS, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/flag-characters")) {
+      return Promise.resolve({ data: MOCK_GAME_CHARS, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/hot-takes")) {
+      return Promise.resolve({ data: MOCK_HOT_TAKES, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/watchlist")) {
+      return Promise.resolve({ data: MOCK_WATCHLIST, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/tier-lists") || url.includes("/tierlist")) {
+      return Promise.resolve({ data: MOCK_TIER_LISTS, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/users") || url.includes("/admin/users")) {
+      return Promise.resolve({ data: MOCK_USERS, status: 200, statusText: "OK", headers: {}, config });
+    } else if (url.includes("/genres")) {
+      const genres = [
+        { id: 1, name: "Action" }, { id: 2, name: "Romance" }, { id: 3, name: "Comedy" },
+        { id: 4, name: "Drama" }, { id: 5, name: "Sci-Fi" }, { id: 6, name: "Fantasy" },
+        { id: 7, name: "Thriller" }, { id: 8, name: "Slice of Life" }, { id: 9, name: "Mystery" }
+      ];
+      return Promise.resolve({ data: genres, status: 200, statusText: "OK", headers: {}, config });
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default API;
