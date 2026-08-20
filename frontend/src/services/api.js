@@ -9,9 +9,19 @@ const API = axios.create({
   },
 });
 
-// Helper function to filter MOCK_CONTENTS based on query parameters
+// Helper function to filter MOCK_CONTENTS based on query parameters or ID
 const filterMockContents = (url) => {
   try {
+    // Check if URL is for single content detail like /contents/15
+    const detailMatch = url.match(/\/contents\/(\d+)/);
+    if (detailMatch) {
+      const targetId = parseInt(detailMatch[1]);
+      const found = MOCK_CONTENTS.find((c) => c.id === targetId);
+      if (found) return found;
+      // Fallback to first item if specified ID is missing
+      return MOCK_CONTENTS[0];
+    }
+
     const urlObj = new URL(url, "http://dummy.com");
     const typeParam = (urlObj.searchParams.get("type") || "").toLowerCase().trim();
     const searchParam = (urlObj.searchParams.get("search") || "").toLowerCase().trim();
