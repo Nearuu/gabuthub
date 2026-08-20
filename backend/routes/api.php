@@ -57,6 +57,14 @@ Route::post('/contents/{id}', [ContentController::class, 'update']);
 Route::delete('/contents/{id}', [ContentController::class, 'destroy']);
 Route::post('/contents/{id}/featured', [ContentController::class, 'setFeatured']);
 Route::post('/contents/{contentId}/osts', [ContentController::class, 'storeOst']);
+Route::post('/admin/clear-all-osts', function() {
+    \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
+    \App\Models\Ost::truncate();
+    \Illuminate\Support\Facades\DB::table('ost_likes')->truncate();
+    \Illuminate\Support\Facades\DB::table('ost_votes')->truncate();
+    \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
+    return response()->json(['message' => 'Semua data OST berhasil dihapus 100%!']);
+});
 Route::put('/osts/{id}', [OstController::class, 'updateOst']);
 Route::delete('/osts/{id}', [OstController::class, 'destroyOst']);
 
