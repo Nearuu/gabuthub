@@ -18,7 +18,7 @@ const useWatchlistStore = create((set, get) => ({
     }
   },
 
-  // Fetch watchlist murni per-user
+  // Fetch watchlist murni per-user (SELAIN USER YANG SUDAH ISI -> AWALNYA MURNI KOSONG 0)
   fetchWatchlist: async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -28,7 +28,7 @@ const useWatchlistStore = create((set, get) => ({
 
     const key = get().getUserStorageKey();
 
-    // 1. Try fetching from Backend API
+    // 1. Fetch from API Backend
     try {
       set({ loading: true });
       const res = await API.get('/watchlist');
@@ -40,7 +40,7 @@ const useWatchlistStore = create((set, get) => ({
       }
     } catch (err) {}
 
-    // 2. Strict Per-User LocalStorage Isolation (Default ALWAYS EMPTY [] if newly created user)
+    // 2. Strict LocalStorage Isolation (DEFAULT 100% EMPTY [] FOR ANY NEW USER)
     const stored = localStorage.getItem(key);
     if (stored) {
       try {
@@ -49,7 +49,7 @@ const useWatchlistStore = create((set, get) => ({
         set({ watchlistItems: [] });
       }
     } else {
-      // STRICTLY EMPTY FOR EVERY INDIVIDUAL USER
+      // ABSOLUTELY ZERO / EMPTY FOR ALL NEW USERS
       localStorage.setItem(key, JSON.stringify([]));
       set({ watchlistItems: [] });
     }
@@ -95,11 +95,9 @@ const useWatchlistStore = create((set, get) => ({
       notes: payload?.notes || ''
     };
 
-    // Remove existing if any, then add new
     const filtered = currentList.filter(i => String(i.content_id || i.id) !== String(contentId));
     const updatedList = [newItem, ...filtered];
 
-    // Try posting to API
     try {
       await API.post('/watchlist', {
         content_id: contentId,
@@ -109,7 +107,6 @@ const useWatchlistStore = create((set, get) => ({
       });
     } catch (e) {}
 
-    // Save strictly to THIS USER's localStorage key
     localStorage.setItem(key, JSON.stringify(updatedList));
     set({ watchlistItems: updatedList });
 

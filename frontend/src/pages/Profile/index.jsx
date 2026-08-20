@@ -53,7 +53,7 @@ export default function Profile() {
           setWatchlistCount(0);
         }
       } else {
-        setWatchlistCount(user.role === "admin" || user.username === "admin" ? 2 : 0);
+        setWatchlistCount(0);
       }
 
       // Compute Community Posts by this exact username
@@ -62,21 +62,16 @@ export default function Profile() {
           const myPosts = r.data.filter((p) => p.user?.username?.toLowerCase() === user.username?.toLowerCase() || p.user_id === user.id);
           setPostsCount(myPosts.length);
         } else {
-          setPostsCount(user.role === "admin" ? 2 : 0);
+          setPostsCount(0);
         }
       }).catch(() => {
-        setPostsCount(user.role === "admin" ? 2 : 0);
+        setPostsCount(0);
       });
 
       // Compute Badges & Votes
-      if (user.role === "admin" || user.username === "admin") {
-        setUserBadgesCount(6);
-        setVotesCount(24);
-      } else {
-        const badges = user.badges ? user.badges.length : 0;
-        setUserBadgesCount(badges);
-        setVotesCount(user.votesCount || 0);
-      }
+      const badges = user.badges ? user.badges.length : 0;
+      setUserBadgesCount(badges);
+      setVotesCount(user.votesCount || 0);
     }
   }, [token, user?.username]);
 
