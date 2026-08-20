@@ -72,20 +72,35 @@ export default function Detail() {
   }, [id, token]);
 
   const handleSaveWatchlist = async () => {
-    if (!token) {
-      toast.error("Kamu harus masuk untuk menambahkan watchlist");
+    if (!token || !user) {
+      toast.error("Silakan login terlebih dahulu untuk menyimpan ke Watchlist pribadi Anda!");
       return;
     }
     setSavingWatchlist(true);
     try {
       await API.post("/watchlist", {
         content_id: id,
-        status: watchlistStatus,
+        status: watchlistStatus || "Plan to Watch",
         personal_rating: personalRating || null,
         notes: personalNotes || null,
       });
-      toast.success("Watchlist berhasil diperbarui");
-      await useWatchlistStore.getState().fetchWatchlist();
+
+      // Save to local user-isolated storage
+      const key = `watchlist_user_${user.id || user.email}`;
+      const existing = JSON.parse(localStorage.getItem(key) || "[]");
+      const newItem = {
+        id: Date.now(),
+        content_id: parseInt(id),
+        title: content?.title || "Judul Konten",
+        type: content?.type || "Drakor",
+        poster_url: content?.poster_url,
+        pivot: { status: watchlistStatus || "Plan to Watch", personal_rating: personalRating || 10 }
+      };
+      const filtered = existing.filter((item) => item.content_id !== parseInt(id));
+      filtered.push(newItem);
+      localStorage.setItem(key, JSON.stringify(filtered));
+
+      toast.success("Berhasil tersimpan di Watchlist Anda!");
       loadContentDetail();
     } catch (e) {
       console.error(e);

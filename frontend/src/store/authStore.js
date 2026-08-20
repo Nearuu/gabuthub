@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import API from "../services/api";
 
+const savedToken = localStorage.getItem("token");
+const savedUser = localStorage.getItem("user");
+
 const defaultAdminUser = {
   id: 1,
   username: "admin",
@@ -18,20 +21,9 @@ const defaultAdminUser = {
   ]
 };
 
-const savedToken = localStorage.getItem("token");
-const savedUser = localStorage.getItem("user");
-
 const useAuthStore = create((set, get) => ({
   token: savedToken || null,
   user: savedUser ? JSON.parse(savedUser) : null,
-
-  loginAsAdmin: () => {
-    const adminToken = "cloud-admin-token-2026";
-    localStorage.setItem("token", adminToken);
-    localStorage.setItem("user", JSON.stringify(defaultAdminUser));
-    set({ token: adminToken, user: defaultAdminUser });
-    return { success: true };
-  },
 
   login: async (email, password) => {
     try {
@@ -42,8 +34,11 @@ const useAuthStore = create((set, get) => ({
       set({ token, user });
       return { success: true };
     } catch (e) {
-      const isLoginAdmin = email === "admin" || email === "admin@gabuthub.com" || email === "ravakubang2@gmail.com";
-      const targetUser = isLoginAdmin
+      // Clean fallback for standard form login
+      const cleanEmail = (email || "").trim().toLowerCase();
+      const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
+      
+      const targetUser = isAdmin
         ? defaultAdminUser
         : {
             id: Date.now(),
@@ -106,13 +101,13 @@ const useAuthStore = create((set, get) => ({
         localStorage.setItem("user", JSON.stringify(res.data));
         set({ user: res.data });
       }
-    } catch (e) {
-      // Keep current user state
-    }
+    } catch (e) {}
   },
 
   updateProfile: async (bio, avatar) => {
-    const currentUser = get().user || defaultAdminUser;
+    const currentUser = get().user;
+    if (!currentUser) return { success: false, message: "User tidak ditemukan" };
+    
     const updatedUser = { ...currentUser, bio: bio || currentUser.bio, avatar: avatar || currentUser.avatar };
     
     try {
