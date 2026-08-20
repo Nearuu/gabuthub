@@ -1,43 +1,27 @@
 import { create } from "zustand";
 
-const useThemeStore = create((set) => ({
-  darkMode: localStorage.getItem("theme") !== "light", // Default to dark (Teal/Coral mode)
-  sidebarCollapsed: localStorage.getItem("sb_collapsed") === "true",
-
-  init: () => {
-    const isDark = localStorage.getItem("theme") !== "light";
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  },
+const useThemeStore = create((set, get) => ({
+  darkMode: true, // ALWAYS DEFAULT TO BEAUTIFUL NIGHT DARK MODE
+  sidebarOpen: true,
 
   toggleTheme: () => {
-    set((state) => {
-      const nextDark = !state.darkMode;
-      localStorage.setItem("theme", nextDark ? "dark" : "light");
-      if (nextDark) {
+    const nextState = !get().darkMode;
+    set({ darkMode: nextState });
+    if (typeof document !== "undefined") {
+      if (nextState) {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
-      return { darkMode: nextDark };
-    });
+    }
   },
 
-  toggleSidebar: () => {
-    set((state) => {
-      const nextCollapsed = !state.sidebarCollapsed;
-      localStorage.setItem("sb_collapsed", String(nextCollapsed));
-      return { sidebarCollapsed: nextCollapsed };
-    });
-  },
-  
-  setSidebarCollapsed: (collapsed) => {
-    localStorage.setItem("sb_collapsed", String(collapsed));
-    set({ sidebarCollapsed: collapsed });
-  }
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  setSidebarOpen: (isOpen) => set({ sidebarOpen: isOpen }),
 }));
+
+if (typeof window !== "undefined" && typeof document !== "undefined") {
+  document.documentElement.classList.add("dark");
+}
 
 export default useThemeStore;
