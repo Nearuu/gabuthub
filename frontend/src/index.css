@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-wm-coral: var(--wm-accent);
-  --color-wm-mint: var(--wm-accent);
-  --color-wm-accent: var(--wm-accent);
-  --color-wm-accent-hover: var(--wm-accent-hover);
-  --color-wm-[#00E575]: var(--wm-accent);
-  --color-wm-yellow: var(--wm-yellow);
+  --color-wm-coral: #FF5252;
+  --color-wm-mint: #00E575;
+  --color-wm-accent: #00E575;
+  --color-wm-accent-hover: #00C865;
+  --color-wm-[#00E575]: #00E575;
+  --color-wm-yellow: #F59E0B;
+  --color-wm-purple: #8B5CF6;
   --color-wm-bg: var(--wm-bg);
   --color-wm-card: var(--wm-card);
   --color-wm-text: var(--wm-text);
@@ -16,32 +17,31 @@
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* ─── SOFT MODERN BALANCED LIGHT THEME (DEFAULT SANTAI & ADEM) ─── */
+/* ─── VIBRANT RICH COLORFUL THEME (TIDAK POLOS B&W!) ─── */
 :root {
   --wm-accent: #00E575;       /* Vibrant Emerald Neon */
   --wm-accent-hover: #00C865;
   --wm-yellow: #F59E0B;
-  --wm-bg: #F8FAFC;            /* Crisp Soft Slate Grey Background - Adem di mata */
-  --wm-card: #FFFFFF;          /* Pure White Cards - Clean & Professional */
-  --wm-text: #475569;          /* Slate Body Text */
-  --wm-texth: #0F172A;         /* Dark Slate Headings */
-  --wm-border: #E2E8F0;        /* Subtle Border */
+  --wm-bg: #0b0f19;            /* Deep Rich Navy Blue Background */
+  --wm-card: #131b2e;          /* Elevated Rich Sapphire Card */
+  --wm-text: #94A3B8;          /* Vibrant Slate Text */
+  --wm-texth: #FFFFFF;         /* Crisp White Titles */
+  --wm-border: #1E293B;        /* Deep Border */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── SLEEK SLATE DARK THEME (JIKA DIPILIH PENGGUNA) ─── */
 .dark {
-  --wm-accent: #00E575;       /* Vibrant Emerald Neon */
+  --wm-accent: #00E575;
   --wm-accent-hover: #00C865;
   --wm-yellow: #F59E0B;
-  --wm-bg: #0F172A;            /* Slate Navy Background - Adem, bukan hitam pekat */
-  --wm-card: #1E293B;          /* Elevated Navy Slate Cards */
-  --wm-text: #94A3B8;          /* Light Slate Body Text */
-  --wm-texth: #FFFFFF;         /* White Headings */
-  --wm-border: #334155;        /* Dark Borders */
+  --wm-bg: #0b0f19;
+  --wm-card: #131b2e;
+  --wm-text: #94A3B8;
+  --wm-texth: #FFFFFF;
+  --wm-border: #1E293B;
 }
 
 * {
