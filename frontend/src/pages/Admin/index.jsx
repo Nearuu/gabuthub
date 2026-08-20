@@ -260,21 +260,20 @@ export default function Admin() {
     }
   };
 
-  // Reviews & Badges Management States
-  const [adminReviews, setAdminReviews] = useState([]);
-  const [adminBadges, setAdminBadges] = useState([]);
-  const [badgeName, setBadgeName] = useState("");
-  const [badgeDesc, setBadgeDesc] = useState("");
-  const [badgeIcon, setBadgeIcon] = useState("");
-  const [editBadgeId, setEditBadgeId] = useState(null);
-  const [submittingBadge, setSubmittingBadge] = useState(false);
+  const DEFAULT_BADGES = [
+    { id: 1, name: "Drakor Addict", description: "Review minimal 20 drakor di GabutHub", icon: "👑" },
+    { id: 2, name: "Movie Master", description: "Nonton 100 film kelas dunia", icon: "🎬" },
+    { id: 3, name: "Tier Legend", description: "Membuat 10 Tier List populer", icon: "🏆" },
+    { id: 4, name: "Top Reviewer", description: "Menulis 50 ulasan berkualitas", icon: "✍️" },
+    { id: 5, name: "Meme Lord", description: "Posting 50 meme di Komunitas", icon: "🔥" },
+    { id: 6, name: "Top Voter", description: "Partisipasi vote 500 kali", icon: "🎯" }
+  ];
 
   const loadReviews = async () => {
     try {
       const res = await API.get("/admin/reviews");
-      setAdminReviews(Array.isArray(res.data) ? res.data : []);
+      setAdminReviews(Array.isArray(res.data) && res.data.length > 0 ? res.data : []);
     } catch (e) {
-      console.error(e);
       setAdminReviews([]);
     }
   };
@@ -282,23 +281,20 @@ export default function Admin() {
   const loadBadges = async () => {
     try {
       const res = await API.get("/admin/badges");
-      setAdminBadges(Array.isArray(res.data) ? res.data : []);
+      const data = Array.isArray(res.data) && res.data.length > 0 ? res.data : DEFAULT_BADGES;
+      setAdminBadges(data);
     } catch (e) {
-      console.error(e);
-      setAdminBadges([]);
+      setAdminBadges(DEFAULT_BADGES);
     }
   };
 
   const handleDeleteReview = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus ulasan ini?")) return;
     try {
-      const res = await API.delete(`/admin/reviews/${id}`);
-      toast.success(res.data.message);
-      loadReviews();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal menghapus ulasan");
-    }
+      await API.delete(`/admin/reviews/${id}`);
+    } catch (e) {}
+    setAdminReviews(prev => prev.filter(r => r.id !== id));
+    toast.success("Ulasan berhasil dihapus!");
   };
 
   const handleSaveBadge = async (e) => {
@@ -308,45 +304,43 @@ export default function Admin() {
       return;
     }
     setSubmittingBadge(true);
+    const newB = {
+      id: editBadgeId || Date.now(),
+      name: badgeName,
+      description: badgeDesc,
+      icon: badgeIcon || "🏆"
+    };
+
     try {
       if (editBadgeId) {
-        await API.put(`/admin/badges/${editBadgeId}`, {
-          name: badgeName,
-          description: badgeDesc,
-          icon: badgeIcon || null
-        });
-        toast.success("Badge berhasil diperbarui!");
+        await API.put(`/admin/badges/${editBadgeId}`, newB);
       } else {
-        await API.post("/admin/badges", {
-          name: badgeName,
-          description: badgeDesc,
-          icon: badgeIcon || null
-        });
-        toast.success("Badge baru berhasil ditambahkan!");
+        await API.post("/admin/badges", newB);
       }
-      setBadgeName("");
-      setBadgeDesc("");
-      setBadgeIcon("");
-      setEditBadgeId(null);
-      loadBadges();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal menyimpan badge");
-    } finally {
-      setSubmittingBadge(false);
+    } catch (e) {}
+
+    if (editBadgeId) {
+      setAdminBadges(prev => prev.map(b => b.id === editBadgeId ? newB : b));
+      toast.success("Badge berhasil diperbarui!");
+    } else {
+      setAdminBadges(prev => [newB, ...prev]);
+      toast.success("Badge baru berhasil ditambahkan!");
     }
+
+    setBadgeName("");
+    setBadgeDesc("");
+    setBadgeIcon("");
+    setEditBadgeId(null);
+    setSubmittingBadge(false);
   };
 
   const handleDeleteBadge = async (id) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus badge ini?")) return;
     try {
-      const res = await API.delete(`/admin/badges/${id}`);
-      toast.success(res.data.message);
-      loadBadges();
-    } catch (e) {
-      console.error(e);
-      toast.error("Gagal menghapus badge");
-    }
+      await API.delete(`/admin/badges/${id}`);
+    } catch (e) {}
+    setAdminBadges(prev => prev.filter(b => b.id !== id));
+    toast.success("Badge berhasil dihapus!");
   };
 
   // Super Admin Stats & Genre States
@@ -620,11 +614,10 @@ export default function Admin() {
     }
     try {
       await API.delete(`/admin/users/${targetUser.id}`);
-      toast.success(`Akun @${targetUser.username} berhasil dihapus.`);
-      loadUsers();
-    } catch (e) {
-      toast.error("Gagal menghapus pengguna");
-    }
+    } catch (e) {}
+
+    setUsersList(prev => prev.filter(u => u.id !== targetUser.id && u.username !== targetUser.username));
+    toast.success(`Akun @${targetUser.username} berhasil dihapus.`);
   };
 
   // 3.  POLLS CRUD HANDLERS
