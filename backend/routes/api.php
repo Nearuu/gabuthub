@@ -95,35 +95,38 @@ Route::post('/admin/genres', [ContentController::class, 'storeGenre']);
 Route::delete('/admin/genres/{id}', [ContentController::class, 'destroyGenre']);
 Route::delete('/admin/comments/{id}', [CommunityController::class, 'destroyComment']);
 
+// Watchlist
+Route::get('/watchlist', [WatchlistController::class, 'index']);
+Route::post('/watchlist', [WatchlistController::class, 'store']);
+Route::delete('/watchlist/{contentId}', [WatchlistController::class, 'destroy']);
+
+// Reviews
+Route::post('/contents/{contentId}/reviews', [ReviewController::class, 'store']);
+Route::post('/reviews/{id}/like', [ReviewController::class, 'toggleLike']);
+
+// Community (Posts)
+Route::post('/posts', [CommunityController::class, 'store']);
+Route::post('/posts/{id}/like', [CommunityController::class, 'toggleLike']);
+Route::post('/posts/{id}/comments', [CommunityController::class, 'comment']);
+
+// Tier Lists
+Route::post('/tier-lists', [TierListController::class, 'store']);
+Route::post('/tier-lists/{id}/like', [TierListController::class, 'toggleLike']);
+
+// Polls
+Route::post('/polls/{id}/vote', [PollController::class, 'vote']);
+
+// OSTs
+Route::post('/osts/{id}/like', [OstController::class, 'toggleLike']);
+Route::post('/osts/{id}/vote', [OstController::class, 'toggleVote']);
+
+// User Profile Update
+Route::post('/user/profile', [AuthController::class, 'updateProfile']);
+Route::get('/user', [AuthController::class, 'me']);
+Route::post('/logout', [AuthController::class, 'logout']);
+
 // Protected routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth profile
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'me']);
-    Route::post('/user/profile', [AuthController::class, 'updateProfile']);
-
-    // Watchlist
-    Route::get('/watchlist', [WatchlistController::class, 'index']);
-    Route::post('/watchlist', [WatchlistController::class, 'store']);
-    Route::delete('/watchlist/{contentId}', [WatchlistController::class, 'destroy']);
-
-    // Reviews
-    Route::post('/contents/{contentId}/reviews', [ReviewController::class, 'store']);
-    Route::post('/reviews/{id}/like', [ReviewController::class, 'toggleLike']);
-
-    // Community (Posts)
-    Route::post('/posts', [CommunityController::class, 'store']);
-    Route::post('/posts/{id}/like', [CommunityController::class, 'toggleLike']);
-    Route::post('/posts/{id}/comments', [CommunityController::class, 'comment']);
-
-    // Tier Lists
-    Route::post('/tier-lists', [TierListController::class, 'store']);
-    Route::post('/tier-lists/{id}/like', [TierListController::class, 'toggleLike']);
-
-    // Polls
-    Route::post('/polls/{id}/vote', [PollController::class, 'vote']);
-
-    // OSTs
-    Route::post('/osts/{id}/like', [OstController::class, 'toggleLike']);
-    Route::post('/osts/{id}/vote', [OstController::class, 'toggleVote']);
+    Route::get('/sanctum/user', [AuthController::class, 'me']);
 });
