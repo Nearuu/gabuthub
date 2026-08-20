@@ -1,5 +1,10 @@
 {
+  "version": 2,
   "builds": [
+    {
+      "src": "api/index.php",
+      "use": "@vercel/php"
+    },
     {
       "src": "frontend/package.json",
       "use": "@vercel/static-build",
@@ -9,6 +14,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.php"
+    },
     {
       "src": "/assets/(.*)",
       "dest": "/frontend/dist/assets/$1"

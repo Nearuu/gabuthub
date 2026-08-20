@@ -1,7 +1,14 @@
 import axios from "axios";
 
+const getBaseUrl = () => {
+  if (typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")) {
+    return "/api";
+  }
+  return "http://127.0.0.1:8000/api";
+};
+
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
