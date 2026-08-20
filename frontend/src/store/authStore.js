@@ -81,9 +81,21 @@ const useAuthStore = create((set, get) => ({
       role: "user",
       avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username || email}`,
       coverUrl: "",
+      created_at: new Date().toISOString().slice(0, 10),
       bio: "Member baru GabutHub! 👋",
       badges: []
     };
+
+    // Save to persistent registered_users_list
+    try {
+      const storedUsers = localStorage.getItem("registered_users_list");
+      const list = storedUsers ? JSON.parse(storedUsers) : [];
+      if (!list.some(u => u.email?.toLowerCase() === newUser.email.toLowerCase() || u.username?.toLowerCase() === newUser.username.toLowerCase())) {
+        list.push(newUser);
+        localStorage.setItem("registered_users_list", JSON.stringify(list));
+      }
+    } catch (e) {}
+
     const mockToken = "user-token-" + Date.now();
     localStorage.setItem("token", mockToken);
     localStorage.setItem("user", JSON.stringify(newUser));

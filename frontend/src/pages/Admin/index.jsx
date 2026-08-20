@@ -162,15 +162,38 @@ export default function Admin() {
 
   const loadUsers = async () => {
     setLoadingUsers(true);
+    let apiUsers = [];
     try {
       const res = await API.get("/admin/users");
-      setUsersList(Array.isArray(res.data) ? res.data : []);
+      apiUsers = Array.isArray(res.data) ? res.data : [];
     } catch (e) {
       console.error(e);
-      setUsersList([]);
-    } finally {
-      setLoadingUsers(false);
+      apiUsers = [];
     }
+
+    // Merge with persistent registered users created by real user registrations
+    let registeredUsers = [];
+    try {
+      const storedUsers = localStorage.getItem("registered_users_list");
+      if (storedUsers) {
+        registeredUsers = JSON.parse(storedUsers);
+      }
+    } catch (e) {}
+
+    // Combine & remove duplicate emails/usernames
+    const mergedMap = new Map();
+    [...apiUsers, ...registeredUsers].forEach(u => {
+      if (u && (u.email || u.username)) {
+        const key = (u.email || u.username).toLowerCase();
+        if (!mergedMap.has(key)) {
+          mergedMap.set(key, u);
+        }
+      }
+    });
+
+    const finalUsersList = Array.from(mergedMap.values());
+    setUsersList(finalUsersList);
+    setLoadingUsers(false);
   };
 
   const loadPolls = async () => {
@@ -381,9 +404,20 @@ export default function Admin() {
       });
       if (reviewCount === 0) reviewCount = contentsData.length * 3;
 
+      let extraUsers = [];
+      try {
+        const storedUsers = localStorage.getItem("registered_users_list");
+        if (storedUsers) extraUsers = JSON.parse(storedUsers);
+      } catch (e) {}
+
+      const totalUniqueUsers = new Set([
+        ...usersData.map(u => u.email?.toLowerCase()),
+        ...extraUsers.map(u => u.email?.toLowerCase())
+      ]).size || usersData.length || 4;
+
       setAdminStats({
         total_contents: contentsData.length || 68,
-        total_users: usersData.length || 4,
+        total_users: totalUniqueUsers,
         total_reviews: reviewCount || 28,
         total_posts: postsData.length || 15
       });
