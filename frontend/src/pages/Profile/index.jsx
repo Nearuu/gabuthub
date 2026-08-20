@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { User, BookOpen, MessageSquare, Award, Edit3, Check, ShieldCheck, Heart, Sparkles, Star, Flame, LogOut, Lock, KeyRound, Image as ImageIcon } from "lucide-react";
+import { User, BookOpen, MessageSquare, Award, Edit3, Check, ShieldCheck, Heart, Sparkles, Star, Flame, LogOut, Lock, KeyRound } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuthStore from "../../store/authStore";
 import API from "../../services/api";
@@ -133,79 +133,86 @@ export default function Profile() {
       <div className="relative overflow-hidden rounded-3xl border border-wm-border bg-wm-card shadow-2xl">
         {/* Decorative Custom Cover Banner */}
         <div 
-          className="h-44 w-full bg-cover bg-center relative transition-all duration-300"
+          className="h-48 w-full bg-cover bg-center relative transition-all duration-300"
           style={{
             backgroundImage: coverUrl 
               ? `url(${coverUrl})`
               : "linear-gradient(to right, rgba(0, 229, 117, 0.3), rgba(20, 184, 166, 0.2), rgba(168, 85, 247, 0.3))"
           }}
         >
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
-          <div className="absolute top-4 right-4 flex items-center gap-2">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px]" />
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
             <span className="rounded-full bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 text-2xs font-bold text-white flex items-center gap-1.5 shadow-md">
               <Sparkles size={13} className="text-wm-accent" /> {user.role === "admin" ? "Administrator Resmi" : "Member Resmi"}
             </span>
           </div>
         </div>
 
-        {/* Header Main Info */}
-        <div className="relative px-8 pb-8 pt-0 flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left -mt-16">
-          {/* Avatar Container with glowing border */}
-          <div className="relative group flex-shrink-0">
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-wm-accent via-emerald-400 to-teal-300 opacity-70 blur-md group-hover:opacity-100 transition duration-500" />
-            <img
-              src={avatar || user.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
-              alt={user.username}
-              className="relative h-32 w-32 rounded-2xl object-cover border-4 border-wm-card bg-wm-bg shadow-2xl"
-            />
-          </div>
+        {/* Header Main Info - ENTIRELY INSIDE THE WHITE/CARD BACKGROUND AREA */}
+        <div className="relative px-8 pb-8 pt-4 bg-wm-card">
+          <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6 text-center md:text-left -mt-20">
+            
+            {/* Avatar & User Details */}
+            <div className="flex flex-col md:flex-row items-center md:items-end gap-5">
+              {/* Avatar Container with glowing border */}
+              <div className="relative group flex-shrink-0">
+                <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-wm-accent via-emerald-400 to-teal-300 opacity-70 blur-md group-hover:opacity-100 transition duration-500" />
+                <img
+                  src={avatar || user.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User"}
+                  alt={user.username}
+                  className="relative h-32 w-32 rounded-2xl object-cover border-4 border-wm-card bg-wm-bg shadow-2xl"
+                />
+              </div>
 
-          {/* User Info & Bio */}
-          <div className="flex-1 space-y-2">
-            <div className="flex flex-col md:flex-row md:items-center gap-3 justify-center md:justify-start">
-              <h1 className="text-3xl font-black tracking-tight text-wm-texth">@{user.username}</h1>
-              {user.role === "admin" ? (
-                <span className="inline-flex items-center gap-1 self-center md:self-auto rounded-full bg-wm-accent/20 border border-wm-accent/40 px-3 py-0.5 text-xs font-black uppercase tracking-wider text-wm-accent shadow-sm">
-                  <ShieldCheck size={13} /> ADMIN RESMI
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 self-center md:self-auto rounded-full bg-blue-500/20 border border-blue-500/40 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-400 shadow-sm">
-                  USER MEMBER
-                </span>
-              )}
+              {/* User Info on Card Background Area */}
+              <div className="space-y-1.5 pt-2">
+                <div className="flex flex-col md:flex-row md:items-center gap-2.5 justify-center md:justify-start">
+                  <h1 className="text-3xl font-black tracking-tight text-wm-texth">@{user.username}</h1>
+                  {user.role === "admin" ? (
+                    <span className="inline-flex items-center gap-1 self-center md:self-auto rounded-full bg-wm-accent/20 border border-wm-accent/40 px-3 py-0.5 text-xs font-black uppercase tracking-wider text-wm-accent shadow-sm">
+                      <ShieldCheck size={13} /> ADMIN RESMI
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 self-center md:self-auto rounded-full bg-blue-500/20 border border-blue-500/40 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-400 shadow-sm">
+                      USER MEMBER
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-wm-text/60 font-medium">✉️ {user.email}</p>
+
+                <p className="text-sm text-wm-text/80 leading-relaxed max-w-xl font-medium pt-0.5">
+                  "{user.bio || bio || "Member baru GabutHub! 👋"}"
+                </p>
+              </div>
             </div>
 
-            <p className="text-xs text-wm-text/60 font-medium">✉️ {user.email}</p>
-
-            <p className="text-sm text-wm-text/80 leading-relaxed max-w-xl font-medium pt-1">
-              "{user.bio || bio || "Member baru GabutHub! 👋"}"
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end pb-1">
-            <button
-              onClick={() => setEditMode(!editMode)}
-              className="flex items-center gap-2 rounded-2xl border border-wm-border bg-wm-bg px-5 py-3 text-xs font-bold text-wm-texth hover:text-wm-accent hover:border-wm-accent/40 transition cursor-pointer shadow-md"
-            >
-              <Edit3 size={15} /> {editMode ? "Tutup Editor" : "Edit Profil & Sampul"}
-            </button>
-            
-            {user.role === "admin" && (
-              <Link
-                to="/admin"
-                className="flex items-center gap-2 rounded-2xl bg-wm-accent hover:bg-wm-accent-hover px-5 py-3 text-xs font-black text-black transition cursor-pointer shadow-lg shadow-wm-accent/20"
+            {/* Action Buttons on Card Area */}
+            <div className="flex flex-wrap items-center gap-3 justify-center md:justify-end">
+              <button
+                onClick={() => setEditMode(!editMode)}
+                className="flex items-center gap-2 rounded-2xl border border-wm-border bg-wm-bg px-5 py-3 text-xs font-bold text-wm-texth hover:text-wm-accent hover:border-wm-accent/40 transition cursor-pointer shadow-md"
               >
-                <ShieldCheck size={15} /> Panel Admin
-              </Link>
-            )}
+                <Edit3 size={15} /> {editMode ? "Tutup Editor" : "Edit Profil & Sampul"}
+              </button>
+              
+              {user.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-2 rounded-2xl bg-wm-accent hover:bg-wm-accent-hover px-5 py-3 text-xs font-black text-black transition cursor-pointer shadow-lg shadow-wm-accent/20"
+                >
+                  <ShieldCheck size={15} /> Panel Admin
+                </Link>
+              )}
 
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer"
-            >
-              <LogOut size={15} /> Keluar
-            </button>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-bold text-red-400 hover:bg-red-500 hover:text-white transition cursor-pointer"
+              >
+                <LogOut size={15} /> Keluar
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
