@@ -18,21 +18,17 @@ export default function Watchlist() {
   const loadWatchlist = async () => {
     try {
       const res = await API.get("/watchlist");
-      setWatchlist(res.data);
+      setWatchlist(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
-      toast.error("Gagal memuat watchlist");
+      setWatchlist([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) {
-      loadWatchlist();
-    } else {
-      setLoading(false);
-    }
+    loadWatchlist();
   }, [token]);
 
   const handleDelete = async (contentId) => {
@@ -46,30 +42,21 @@ export default function Watchlist() {
     }
   };
 
-  if (!token) {
-    return (
-      <div className="flex h-[70vh] flex-col items-center justify-center text-wm-text/60">
-        <Heart className="text-wm-text/30 mb-4" size={48} />
-        <p className="text-sm">Silakan login untuk mengakses Watchlist pribadi Anda.</p>
-        <Link to="/login" className="mt-4 rounded-xl bg-wm-coral px-6 py-2.5 text-xs font-bold text-white hover:bg-wm-coral/90 cursor-pointer shadow shadow-wm-coral/15 transition">
-          Masuk Sekarang
-        </Link>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="flex h-[70vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-wm-mint border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-wm-accent border-t-transparent"></div>
       </div>
     );
   }
 
+  const listToUse = Array.isArray(watchlist) ? watchlist : [];
+
   // Filter watchlist based on tab
-  const filteredList = watchlist.filter((item) => {
+  const filteredList = listToUse.filter((item) => {
+    if (!item) return false;
     if (selectedTab === "Semua") return true;
-    return item.pivot.status === selectedTab;
+    return item.pivot?.status === selectedTab || item.status === selectedTab;
   });
 
   return (
@@ -78,7 +65,7 @@ export default function Watchlist() {
       {/* Header */}
       <div className="border-b border-wm-border/50 pb-4">
         <h2 className="text-2xl font-black tracking-wide flex items-center gap-2 text-wm-texth">
-          <Heart className="text-wm-coral" size={24} fill="currentColor" />
+          <Heart className="text-wm-accent" size={24} fill="currentColor" />
           <span>Watchlist Saya</span>
         </h2>
         <p className="text-xs text-wm-text/60">Koleksi tontonan yang disimpan, sedang ditonton, atau sudah selesai.</p>
@@ -92,7 +79,7 @@ export default function Watchlist() {
             onClick={() => setSelectedTab(tab)}
             className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition cursor-pointer ${
               selectedTab === tab
-                ? "bg-wm-coral border-wm-coral text-white font-bold"
+                ? "bg-wm-accent border-wm-accent text-black font-bold"
                 : "border-wm-border bg-wm-card text-wm-text hover:text-wm-texth"
             }`}
           >
@@ -101,80 +88,59 @@ export default function Watchlist() {
         ))}
       </div>
 
-      {/* Watchlist Grid */}
+      {/* Content Grid */}
       {filteredList.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredList.map((item) => (
             <div
-              key={item.id}
-              className="rounded-2xl border border-wm-border bg-wm-card p-4 flex gap-4 shadow-sm relative group"
+              key={item.id || item.content_id}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-wm-border bg-wm-card p-4 shadow-sm transition hover:border-wm-accent/40"
             >
-              {/* Poster Thumbnail */}
-              <Link to={`/detail/${item.id}`} className="w-20 h-28 flex-shrink-0 overflow-hidden rounded-xl bg-wm-bg border border-wm-border">
+              <div className="flex gap-4 items-start">
                 <img
-                  src={item.poster_url}
-                  alt={item.title}
-                  className="h-full w-full object-cover transition duration-300 group-hover:scale-103"
+                  src={item.poster_url || item.content?.poster_url || "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300"}
+                  alt=""
+                  className="h-28 w-20 rounded-xl object-cover border border-wm-border flex-shrink-0"
                 />
-              </Link>
-
-              {/* Text Info */}
-              <div className="flex-1 overflow-hidden flex flex-col justify-between py-0.5">
-                <div>
-                  <div className="flex items-center gap-2.5">
-                    <span className="rounded bg-wm-mint/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-wm-mint border border-wm-mint/20 capitalize">
-                      {item.type}
-                    </span>
-                    <span className="rounded bg-wm-bg border border-wm-border px-2 py-0.5 text-[9px] font-bold text-wm-text">
-                      {item.pivot.status}
-                    </span>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <span className="inline-block rounded bg-wm-accent/10 border border-wm-accent/20 px-2 py-0.5 text-[9px] font-bold text-wm-accent uppercase">
+                    {item.pivot?.status || item.status || "Plan to Watch"}
+                  </span>
+                  <h3 className="truncate text-base font-black text-wm-texth">{item.title || item.content?.title || "Judul Konten"}</h3>
+                  <div className="flex items-center gap-1 text-xs text-wm-yellow font-bold">
+                    <Star size={12} fill="currentColor" />
+                    <span>{item.pivot?.personal_rating || item.personal_rating || item.avg_rating || "10"}/10</span>
                   </div>
-                  <h4 className="truncate text-base font-bold text-wm-texth mt-1.5 hover:text-wm-coral transition">
-                    <Link to={`/detail/${item.id}`}>{item.title}</Link>
-                  </h4>
-                  
-                  {item.pivot.personal_rating && (
-                    <div className="flex items-center gap-1.5 text-2xs text-wm-yellow mt-1 font-bold">
-                      <Star size={12} fill="currentColor" />
-                      <span>Ratingmu: {item.pivot.personal_rating} / 10</span>
-                    </div>
-                  )}
-
-                  {item.pivot.notes && (
-                    <p className="text-2xs text-wm-text/70 leading-normal mt-1.5 flex items-start gap-1">
-                      <AlignLeft size={12} className="flex-shrink-0 mt-0.5 text-wm-text/40" />
-                      <span className="truncate max-w-[250px]">{item.pivot.notes}</span>
-                    </p>
-                  )}
                 </div>
+              </div>
 
-                <div className="flex items-center justify-between border-t border-wm-border/40 pt-2 mt-2">
-                  <Link
-                    to={`/detail/${item.id}`}
-                    className="text-3xs font-semibold text-wm-text/50 hover:text-wm-texth flex items-center gap-1 transition"
-                  >
-                    <Eye size={10} />
-                    <span>Ubah/Detail</span>
-                  </Link>
-
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="text-wm-text/50 hover:text-wm-coral p-1 rounded transition cursor-pointer"
-                    title="Hapus dari watchlist"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+              <div className="mt-4 flex items-center justify-between border-t border-wm-border/50 pt-3 text-xs">
+                <Link
+                  to={`/detail/${item.content_id || item.id}`}
+                  className="flex items-center gap-1 font-bold text-wm-accent hover:underline"
+                >
+                  <Eye size={14} /> Detail Film
+                </Link>
+                <button
+                  onClick={() => handleDelete(item.content_id || item.id)}
+                  className="text-red-400 hover:text-red-300 p-1 rounded-lg transition cursor-pointer"
+                  title="Hapus dari Watchlist"
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex h-40 flex-col items-center justify-center rounded-2xl border border-wm-border bg-wm-card/10 border-dashed text-wm-text/50">
-          <p className="text-sm">Watchlist kosong dalam kategori ini.</p>
+        <div className="rounded-2xl border border-dashed border-wm-border p-12 text-center text-wm-text/50">
+          <Heart size={36} className="mx-auto mb-2 opacity-30 text-wm-accent" />
+          <p className="text-sm font-semibold">Belum ada tontonan di kategori ini.</p>
+          <Link to="/explore" className="mt-3 inline-block font-bold text-xs text-wm-accent hover:underline">
+            Cari Film & Drakor di Explore →
+          </Link>
         </div>
       )}
-
     </div>
   );
 }

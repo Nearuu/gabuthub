@@ -126,9 +126,10 @@ export default function Admin() {
     setLoadingList(true);
     try {
       const res = await API.get("/contents");
-      setContents(res.data);
-      if (res.data.length > 0 && !selectedContentId) {
-        const firstId = res.data[0].id.toString();
+      const data = Array.isArray(res.data) ? res.data : [];
+      setContents(data);
+      if (data.length > 0 && !selectedContentId) {
+        const firstId = data[0].id.toString();
         setSelectedContentId(firstId);
         loadOstsForSelectedContent(firstId);
       } else if (selectedContentId) {
@@ -136,7 +137,7 @@ export default function Admin() {
       }
     } catch (e) {
       console.error(e);
-      toast.error("Gagal memuat daftar konten");
+      setContents([]);
     } finally {
       setLoadingList(false);
     }
@@ -146,9 +147,10 @@ export default function Admin() {
     if (!contentId) return;
     try {
       const res = await API.get(`/contents/${contentId}`);
-      setActiveContentOsts(res.data.osts || []);
+      setActiveContentOsts(Array.isArray(res.data?.osts) ? res.data.osts : []);
     } catch (e) {
       console.error(e);
+      setActiveContentOsts([]);
     }
   };
 
@@ -162,10 +164,10 @@ export default function Admin() {
     setLoadingUsers(true);
     try {
       const res = await API.get("/admin/users");
-      setUsersList(res.data);
+      setUsersList(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
-      toast.error("Gagal memuat daftar pengguna");
+      setUsersList([]);
     } finally {
       setLoadingUsers(false);
     }
@@ -175,10 +177,10 @@ export default function Admin() {
     setLoadingPolls(true);
     try {
       const res = await API.get("/polls");
-      setPollsList(res.data);
+      setPollsList(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
-      toast.error("Gagal memuat daftar voting");
+      setPollsList([]);
     } finally {
       setLoadingPolls(false);
     }
@@ -188,9 +190,10 @@ export default function Admin() {
     setLoadingTakes(true);
     try {
       const res = await API.get("/hot-takes");
-      setHotTakes(res.data);
+      setHotTakes(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
+      setHotTakes([]);
     } finally {
       setLoadingTakes(false);
     }
@@ -200,9 +203,10 @@ export default function Admin() {
     setLoadingChars(true);
     try {
       const res = await API.get("/flag-characters");
-      setFlagChars(res.data);
+      setFlagChars(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
+      setFlagChars([]);
     } finally {
       setLoadingChars(false);
     }
