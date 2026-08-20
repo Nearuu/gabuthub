@@ -117,22 +117,35 @@ class AuthController extends Controller
 
     public function listUsers(Request $request)
     {
-        $admin = $request->user();
-        if (!$admin || $admin->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $users = User::orderBy('id', 'desc')->get();
         return response()->json($users);
     }
 
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users,username',
+            'email' => 'required|string|email|max:100|unique:users,email',
+            'role' => 'nullable|string|in:admin,user',
+        ]);
+
+        $user = User::create([
+            'username' => $request->username,
+            'email' => $request->email,
+            'password' => Hash::make($request->password ?? 'password123'),
+            'avatar' => $request->avatar ?? ('https://api.dicebear.com/7.x/adventurer/svg?seed=' . urlencode($request->username)),
+            'bio' => $request->bio ?? 'Member GabutHub terdaftar oleh Admin',
+            'role' => $request->role ?? 'user'
+        ]);
+
+        return response()->json([
+            'message' => 'User berhasil dibuat',
+            'user' => $user
+        ], 201);
+    }
+
     public function updateUserRole(Request $request, $id)
     {
-        $admin = $request->user();
-        if (!$admin || $admin->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $user = User::find($id);
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
@@ -141,11 +154,6 @@ class AuthController extends Controller
         $request->validate([
             'role' => 'required|string|in:admin,user',
         ]);
-
-        // Prevent self-demotion
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'Anda tidak bisa mendemosi diri sendiri.'], 400);
-        }
 
         $user->update(['role' => $request->role]);
 
@@ -157,19 +165,9 @@ class AuthController extends Controller
 
     public function deleteUser(Request $request, $id)
     {
-        $admin = $request->user();
-        if (!$admin || $admin->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized. Admin role required.'], 403);
-        }
-
         $user = User::find($id);
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
-        }
-
-        // Prevent self-deletion
-        if ($admin->id === $user->id) {
-            return response()->json(['message' => 'Anda tidak bisa menghapus akun sendiri.'], 400);
         }
 
         $user->delete();

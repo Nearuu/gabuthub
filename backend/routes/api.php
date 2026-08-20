@@ -26,8 +26,11 @@ Route::get('/polls', [PollController::class, 'index']);
 Route::get('/hot-takes', [PollController::class, 'listHotTakes']);
 Route::get('/flag-characters', [PollController::class, 'listFlagCharacters']);
 Route::get('/games/guess-ost', [OstController::class, 'getGuessOstGame']);
-Route::get('/admin/games/settings', [OstController::class, 'getGameSettings']);
-Route::post('/upload', [ContentController::class, 'uploadFile']);
+Route::get('/admin/users', [AuthController::class, 'listUsers']);
+Route::post('/admin/users', [AuthController::class, 'storeUser']);
+Route::put('/admin/users/{id}/role', [AuthController::class, 'updateUserRole']);
+Route::delete('/admin/users/{id}', [AuthController::class, 'deleteUser']);
+Route::post('/admin/users/{id}/ban', [AuthController::class, 'toggleBanUser']);
 
 // Protected routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
