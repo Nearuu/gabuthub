@@ -51,7 +51,8 @@ export default function Explore() {
         if (tabFilter === "osts") {
           const resContents = await API.get("/contents");
           const allOsts = [];
-          resContents.data.forEach(c => {
+          const dataList = Array.isArray(resContents.data) ? resContents.data : [];
+          dataList.forEach(c => {
             if (c.osts && Array.isArray(c.osts)) {
               c.osts.forEach(o => {
                 allOsts.push({
@@ -64,15 +65,15 @@ export default function Explore() {
               });
             }
           });
-          allOsts.sort((a, b) => a.title.localeCompare(b.title));
+          allOsts.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
           setOsts(allOsts);
         } else {
           const [contentsRes, genresRes] = await Promise.all([
             API.get(`/contents?type=${typeFilter}&genre_id=${selectedGenre}&search=${searchInput}`),
             API.get("/genres"),
           ]);
-          setContents(contentsRes.data);
-          setGenres(genresRes.data);
+          setContents(Array.isArray(contentsRes.data) ? contentsRes.data : []);
+          setGenres(Array.isArray(genresRes.data) ? genresRes.data : []);
         }
       } catch (error) {
         console.error("Failed to load explore data", error);

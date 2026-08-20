@@ -37,7 +37,7 @@ export default function Community() {
     try {
       const typeParam = selectedType === "all" ? "" : `?type=${selectedType}`;
       const res = await API.get(`/posts${typeParam}`);
-      setPosts(res.data);
+      setPosts(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
       toast.error("Gagal memuat postingan");
