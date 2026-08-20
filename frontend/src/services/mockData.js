@@ -1818,3 +1818,109 @@ export const MOCK_POLLS = [
         ]
     }
 ];
+
+export const MOCK_POSTS = [
+    {
+        "id": "2",
+        "user_id": "1",
+        "type": "meme",
+        "content": "Kamu member Aku Atmin Huhuhuhuh",
+        "image_url": "https://i.pinimg.com/736x/b8/7f/cd/b87fcd7d2b8ca447a43bcae5967aeb30.jpg",
+        "created_at": "2026-08-08 11:54:40",
+        "username": "admin",
+        "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
+        "user": {
+            "username": "admin",
+            "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
+        },
+        "comments": [
+            {
+                "id": "1",
+                "post_id": "2",
+                "user_id": "4",
+                "comment": "ATMIN",
+                "created_at": "2026-08-20 06:37:46",
+                "username": "RAVASEKAI",
+                "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=RAVASEKAI",
+                "user": {
+                    "username": "RAVASEKAI",
+                    "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=RAVASEKAI"
+                }
+            }
+        ]
+    },
+    {
+        "id": "1",
+        "user_id": "1",
+        "type": "recommendation",
+        "content": "Rekomendasi dong Series apa yang mau atmin tambahin nihhh",
+        "image_url": "https://i.pinimg.com/736x/65/e7/e7/65e7e7704ebe9187931e3009d00e9695.jpg",
+        "created_at": "2026-08-07 13:01:21",
+        "username": "admin",
+        "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg",
+        "user": {
+            "username": "admin",
+            "avatar": "https://i.pinimg.com/1200x/0e/4d/2c/0e4d2ca94976e93969ea073696042e6b.jpg"
+        },
+        "comments": []
+    }
+];
+
+export const MOCK_GAME_CHARS = [
+    {
+        "id": "1",
+        "name": "Baek Hyun-woo",
+        "series": "Queen of Tears",
+        "description": "Suami setia, cerdas, penyayang, rela bertaruh nyawa.",
+        "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=hyunwoo"
+    },
+    {
+        "id": "2",
+        "name": "Ryomen Sukuna",
+        "series": "Jujutsu Kaisen",
+        "description": "Raja Kutukan, psikopat, membunuh demi kesenangan, arogan.",
+        "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=sukuna"
+    },
+    {
+        "id": "3",
+        "name": "Park Yeon-jin",
+        "series": "The Glory",
+        "description": "Bullier kejam, berselingkuh, manipulatif, gaslighter kronis.",
+        "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=yeonjin"
+    },
+    {
+        "id": "4",
+        "name": "Tanjiro Kamado",
+        "series": "Demon Slayer",
+        "description": "Kakak teladan, berhati murni, menghargai musuh sekalipun.",
+        "avatar": "https://api.dicebear.com/7.x/adventurer/svg?seed=tanjiro"
+    }
+];
+
+export const MOCK_HOT_TAKES = [
+    {
+        "id": "1",
+        "text": "Ending drama Queen of Tears terasa terburu-buru dan maksa.",
+        "category": "Drakor"
+    },
+    {
+        "id": "2",
+        "text": "Thanos sebenarnya benar demi menyelamatkan ekosistem alam semesta.",
+        "category": "MCU"
+    },
+    {
+        "id": "3",
+        "text": "Anime shounen modern seperti Jujutsu Kaisen terlalu mengandalkan visual dibanding cerita.",
+        "category": "Anime"
+    },
+    {
+        "id": "4",
+        "text": "Variety Show Running Man sudah kehilangan keseruannya semenjak Lee Kwang-soo keluar.",
+        "category": "Variety"
+    },
+    {
+        "id": "5",
+        "text": "Nonton film di bioskop overrated, mending nonton streaming di kasur rumah.",
+        "category": "Umum"
+    }
+];

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { MOCK_CONTENTS, MOCK_POLLS } from "./mockData";
+import { MOCK_CONTENTS, MOCK_POLLS, MOCK_POSTS, MOCK_GAME_CHARS, MOCK_HOT_TAKES } from "./mockData";
 
 const getBaseUrl = () => {
   if (typeof window !== "undefined" && !window.location.hostname.includes("localhost") && !window.location.hostname.includes("127.0.0.1")) {
@@ -35,12 +35,11 @@ API.interceptors.response.use(
   (response) => {
     // If response data is empty array on Vercel, serve fallback mock data
     if (Array.isArray(response.data) && response.data.length === 0) {
-      if (response.config.url.includes("/contents")) {
-        return { ...response, data: MOCK_CONTENTS };
-      }
-      if (response.config.url.includes("/polls")) {
-        return { ...response, data: MOCK_POLLS };
-      }
+      if (response.config.url.includes("/contents")) return { ...response, data: MOCK_CONTENTS };
+      if (response.config.url.includes("/polls")) return { ...response, data: MOCK_POLLS };
+      if (response.config.url.includes("/posts")) return { ...response, data: MOCK_POSTS };
+      if (response.config.url.includes("/flag-characters")) return { ...response, data: MOCK_GAME_CHARS };
+      if (response.config.url.includes("/hot-takes")) return { ...response, data: MOCK_HOT_TAKES };
     }
     return response;
   },
@@ -53,12 +52,11 @@ API.interceptors.response.use(
     // Fallback strategy for network/404 errors on cloud hosting
     if (!error.response || error.response.status === 404 || error.code === "ERR_NETWORK") {
       const url = error.config?.url || "";
-      if (url.includes("/contents")) {
-        return Promise.resolve({ data: MOCK_CONTENTS, status: 200 });
-      }
-      if (url.includes("/polls")) {
-        return Promise.resolve({ data: MOCK_POLLS, status: 200 });
-      }
+      if (url.includes("/contents")) return Promise.resolve({ data: MOCK_CONTENTS, status: 200 });
+      if (url.includes("/polls")) return Promise.resolve({ data: MOCK_POLLS, status: 200 });
+      if (url.includes("/posts")) return Promise.resolve({ data: MOCK_POSTS, status: 200 });
+      if (url.includes("/flag-characters")) return Promise.resolve({ data: MOCK_GAME_CHARS, status: 200 });
+      if (url.includes("/hot-takes")) return Promise.resolve({ data: MOCK_HOT_TAKES, status: 200 });
       if (url.includes("/games/guess-ost")) {
         return Promise.resolve({
           data: {
