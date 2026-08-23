@@ -35,7 +35,7 @@ export default function Profile() {
     if (user) {
       setUsername(user.username || "");
       setAvatar(user.avatar || "https://api.dicebear.com/7.x/adventurer/svg?seed=User");
-      setCoverUrl(user.coverUrl || "");
+      setCoverUrl(user.cover_url || user.coverUrl || "");
       setBio(user.bio || "Member baru GabutHub! 👋");
     }
   }, [user]);
@@ -131,8 +131,8 @@ export default function Profile() {
         <div 
           className="h-44 w-full bg-cover bg-center relative transition-all duration-300"
           style={{
-            backgroundImage: coverUrl 
-              ? `url(${coverUrl})`
+            backgroundImage: (coverUrl || user?.cover_url || user?.coverUrl) 
+              ? `url(${coverUrl || user?.cover_url || user?.coverUrl})`
               : "linear-gradient(to right, rgba(0, 229, 117, 0.35), rgba(20, 184, 166, 0.25), rgba(168, 85, 247, 0.35))"
           }}
         >

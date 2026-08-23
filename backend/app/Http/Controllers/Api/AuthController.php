@@ -110,6 +110,8 @@ class AuthController extends Controller
             'username' => 'nullable|string|max:100',
             'bio' => 'nullable|string|max:2000',
             'avatar' => 'nullable|string',
+            'cover_url' => 'nullable|string',
+            'coverUrl' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -124,6 +126,9 @@ class AuthController extends Controller
         }
         if ($request->filled('avatar')) {
             $user->avatar = $request->avatar;
+        }
+        if ($request->filled('cover_url') || $request->filled('coverUrl')) {
+            $user->cover_url = $request->cover_url ?? $request->coverUrl;
         }
         $user->save();
 

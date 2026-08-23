@@ -119,7 +119,8 @@ const useAuthStore = create((set, get) => ({
         username: newUsername || currentUser.username,
         bio: bio !== undefined ? bio : currentUser.bio,
         avatar: avatar || currentUser.avatar,
-        coverUrl,
+        cover_url: coverUrl !== undefined ? coverUrl : (currentUser.cover_url || currentUser.coverUrl),
+        coverUrl: coverUrl !== undefined ? coverUrl : (currentUser.cover_url || currentUser.coverUrl),
       });
 
       const updatedUser = res.data?.user || {
@@ -127,7 +128,8 @@ const useAuthStore = create((set, get) => ({
         username: newUsername || currentUser.username,
         bio: bio !== undefined ? bio : currentUser.bio,
         avatar: avatar || currentUser.avatar,
-        coverUrl: coverUrl !== undefined ? coverUrl : currentUser.coverUrl,
+        cover_url: coverUrl !== undefined ? coverUrl : (currentUser.cover_url || currentUser.coverUrl),
+        coverUrl: coverUrl !== undefined ? coverUrl : (currentUser.cover_url || currentUser.coverUrl),
       };
 
       set({ user: updatedUser });

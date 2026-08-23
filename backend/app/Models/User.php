@@ -18,9 +18,17 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'cover_url',
         'bio',
         'role',
     ];
+
+    protected $appends = ['coverUrl'];
+
+    public function getCoverUrlAttribute()
+    {
+        return $this->cover_url;
+    }
 
     protected $hidden = [
         'password',
