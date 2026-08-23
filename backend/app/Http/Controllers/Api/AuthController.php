@@ -37,6 +37,7 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
+            'token' => $token,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 201);
@@ -44,23 +45,20 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'login' => 'required|string', // can be username or email
-            'password' => 'required|string',
-        ]);
+        $loginValue = $request->login ?? $request->email ?? $request->username;
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+        if (!$loginValue || !$request->password) {
+            return response()->json(['message' => 'Email/Username dan password wajib diisi.'], 422);
         }
 
         // Check if login is email or username
-        $user = User::where('email', $request->login)
-                    ->orWhere('username', $request->login)
+        $user = User::where('email', $loginValue)
+                    ->orWhere('username', $loginValue)
                     ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
-                'message' => 'Invalid credentials'
+                'message' => 'Email/Username atau password tidak cocok.'
             ], 401);
         }
 
@@ -68,6 +66,7 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => $user,
+            'token' => $token,
             'access_token' => $token,
             'token_type' => 'Bearer',
         ]);
@@ -85,6 +84,10 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
         // Load badges, watchlist counts, etc.
         $user->load('badges');
         $user->watchlist_count = $user->watchlist()->count();

@@ -187,51 +187,15 @@ export default function Admin() {
       apiUsers = [];
     }
 
-    let registeredUsers = [];
-    try {
-      const stored = localStorage.getItem("registered_users_list");
-      if (stored) registeredUsers = JSON.parse(stored);
-    } catch (e) {}
-
-    // Check cookies for newly registered user cross-tab
-    try {
-      const cookieMatch = document.cookie.match(/gabuthub_latest_user=([^;]+)/);
-      if (cookieMatch && cookieMatch[1]) {
-        const cookieUser = JSON.parse(decodeURIComponent(cookieMatch[1]));
-        if (cookieUser && cookieUser.email) {
-          registeredUsers.unshift(cookieUser);
-        }
-      }
-    } catch (e) {}
-
-    const INITIAL_SYSTEM_USERS = [
-      { id: 1, username: "admin", email: "admin@gabuthub.com", role: "admin", created_at: "2024-01-01", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin" },
-      { id: 2, username: "RAVASEKAI", email: "ravakubang2@gmail.com", role: "admin", created_at: "2024-01-02", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=RAVASEKAI" },
-      { id: 3, username: "DrakorLover", email: "drakor@gabuthub.com", role: "user", created_at: "2024-01-03", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=DrakorLover" },
-      { id: 4, username: "AnimeOtaku", email: "anime@gabuthub.com", role: "user", created_at: "2024-01-04", avatar: "https://api.dicebear.com/7.x/adventurer/svg?seed=AnimeOtaku" }
-    ];
-
-    const combined = [...apiUsers, ...registeredUsers];
-    if (combined.length === 0) combined.push(...INITIAL_SYSTEM_USERS);
-
     const deletedIds = getDeletedUserIds();
-    const map = new Map();
-
-    combined.forEach(u => {
-      if (u && (u.email || u.username)) {
-        const uIdKey = String(u.id || u.email || u.username);
-        const uEmailKey = (u.email || u.username).toLowerCase();
-        
-        if (!deletedIds.includes(uIdKey) && !deletedIds.includes(uEmailKey)) {
-          if (!map.has(uEmailKey)) {
-            map.set(uEmailKey, u);
-          }
-        }
-      }
+    const activeUsers = apiUsers.filter(u => {
+      if (!u) return false;
+      const uId = String(u.id || "");
+      const uEmail = String(u.email || "").toLowerCase();
+      return !deletedIds.includes(uId) && !deletedIds.includes(uEmail);
     });
 
-    const finalUsers = Array.from(map.values());
-    setUsersList(finalUsers);
+    setUsersList(activeUsers);
     setLoadingUsers(false);
   };
 

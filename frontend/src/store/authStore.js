@@ -4,139 +4,80 @@ import API from "../services/api";
 const savedToken = typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
 const savedUser = typeof localStorage !== "undefined" ? localStorage.getItem("user") : null;
 
-// Persistent Global Users Registry & Database Auto-Sync Queue
-const saveUserToGlobalRegistry = (userObj) => {
-  if (!userObj || (!userObj.email && !userObj.username)) return;
-  try {
-    const stored = localStorage.getItem("registered_users_list");
-    const list = stored ? JSON.parse(stored) : [];
-    const isExist = list.some(
-      (u) =>
-        (u.email && userObj.email && u.email.toLowerCase() === userObj.email.toLowerCase()) ||
-        (u.username && userObj.username && u.username.toLowerCase() === userObj.username.toLowerCase())
-    );
-    if (!isExist) {
-      const formattedUser = {
-        id: userObj.id || Date.now(),
-        username: userObj.username,
-        email: userObj.email,
-        role: userObj.role || (userObj.email?.includes("admin") || userObj.username === "admin" ? "admin" : "user"),
-        avatar: userObj.avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${userObj.username}`,
-        created_at: userObj.created_at || new Date().toISOString().slice(0, 10),
-        bio: userObj.bio || "Member baru GabutHub! 👋",
-        is_new: true
-      };
-      list.unshift(formattedUser);
-      localStorage.setItem("registered_users_list", JSON.stringify(list));
-      
-      // Store in cookie for cross-tab availability
-      document.cookie = `gabuthub_latest_user=${encodeURIComponent(JSON.stringify(formattedUser))}; path=/; max-age=31536000`;
-    }
-  } catch (e) {}
-};
-
-// Auto Retry Database Sync Queue when Railway is awake
-const syncPendingUsersToDatabase = async () => {
-  try {
-    const stored = localStorage.getItem("registered_users_list");
-    if (!stored) return;
-    const list = JSON.parse(stored);
-    
-    // Attempt auto-pushing pending user registrations to live Railway Cloud Database
-    for (const u of list) {
-      if (u.is_new && u.email && u.username) {
-        try {
-          await API.post("/register", { username: u.username, email: u.email, password: "password123" });
-          u.is_new = false;
-        } catch (e) {}
-      }
-    }
-    localStorage.setItem("registered_users_list", JSON.stringify(list));
-  } catch (e) {}
-};
-
-// Trigger auto sync on load
-if (typeof window !== "undefined") {
-  setTimeout(syncPendingUsersToDatabase, 2000);
-}
-
 const useAuthStore = create((set, get) => ({
   token: savedToken || null,
   user: savedUser ? JSON.parse(savedUser) : null,
+  loading: false,
 
-  login: async (email, password) => {
-    const cleanEmail = (email || "").trim().toLowerCase();
-    const isAdmin = cleanEmail === "admin" || cleanEmail === "admin@gabuthub.com" || cleanEmail === "ravakubang2@gmail.com";
-
-    const targetUser = {
-      id: Date.now(),
-      username: email.includes("@") ? email.split("@")[0] : email,
-      email: email.includes("@") ? email : `${email}@gabuthub.com`,
-      role: isAdmin ? "admin" : "user",
-      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
-      created_at: new Date().toISOString().slice(0, 10),
-      bio: "Member GabutHub! 👋"
-    };
-
+  login: async (loginVal, password) => {
+    set({ loading: true });
     try {
-      const res = await API.post("/login", { email, password });
-      if (res.data && (res.data.token || res.data.access_token)) {
-        const token = res.data.token || res.data.access_token;
-        const user = res.data.user || res.data.data || targetUser;
-        saveUserToGlobalRegistry(user);
+      const res = await API.post("/login", {
+        login: (loginVal || "").trim(),
+        email: (loginVal || "").trim(),
+        password,
+      });
+
+      const data = res.data;
+      const token = data?.token || data?.access_token;
+      const user = data?.user || data?.data;
+
+      if (token && user) {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        set({ token, user });
-        return { success: true };
+        // Also write cookie for fast server-side compatibility
+        document.cookie = `gabuthub_auth_token=${token}; path=/; max-age=2592000`;
+        set({ token, user, loading: false });
+        return { success: true, user };
+      } else {
+        set({ loading: false });
+        return { success: false, message: "Gagal mendapatkan data login dari server." };
       }
-    } catch (e) {}
-
-    saveUserToGlobalRegistry(targetUser);
-
-    const mockToken = "user-token-" + Date.now();
-    localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(targetUser));
-    set({ token: mockToken, user: targetUser });
-    return { success: true };
+    } catch (error) {
+      set({ loading: false });
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.errors?.login?.[0] ||
+        error?.response?.data?.errors?.password?.[0] ||
+        "Email/Username atau password salah!";
+      return { success: false, message: msg };
+    }
   },
 
   register: async (username, email, password) => {
-    const cleanUsername = (username || (email ? email.split("@")[0] : "User")).trim();
-    const cleanEmail = (email || `${cleanUsername}@gabuthub.com`).trim().toLowerCase();
-
-    const newUser = {
-      id: Date.now(),
-      username: cleanUsername,
-      email: cleanEmail,
-      role: cleanEmail.includes("admin") ? "admin" : "user",
-      avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${cleanUsername}`,
-      created_at: new Date().toISOString().slice(0, 10),
-      bio: "Member baru GabutHub! 👋",
-      is_new: true
-    };
-
-    // 1. Save to persistent global registry & cookies FIRST
-    saveUserToGlobalRegistry(newUser);
-
-    // 2. Direct Sync to Live Railway Cloud Database
+    set({ loading: true });
     try {
-      const res = await API.post("/register", { username: cleanUsername, email: cleanEmail, password });
-      if (res.data && (res.data.token || res.data.access_token)) {
-        const token = res.data.token || res.data.access_token;
-        const user = res.data.user || res.data.data || newUser;
-        saveUserToGlobalRegistry(user);
+      const res = await API.post("/register", {
+        username: (username || "").trim(),
+        email: (email || "").trim().toLowerCase(),
+        password,
+      });
+
+      const data = res.data;
+      const token = data?.token || data?.access_token;
+      const user = data?.user || data?.data;
+
+      if (token && user) {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        set({ token, user });
-        return { success: true };
+        document.cookie = `gabuthub_auth_token=${token}; path=/; max-age=2592000`;
+        set({ token, user, loading: false });
+        return { success: true, user };
+      } else {
+        set({ loading: false });
+        return { success: false, message: "Gagal membuat akun." };
       }
-    } catch (e) {}
-
-    const mockToken = "user-token-" + Date.now();
-    localStorage.setItem("token", mockToken);
-    localStorage.setItem("user", JSON.stringify(newUser));
-    set({ token: mockToken, user: newUser });
-    return { success: true };
+    } catch (error) {
+      set({ loading: false });
+      const errors = error?.response?.data?.errors;
+      const firstError =
+        errors?.username?.[0] ||
+        errors?.email?.[0] ||
+        errors?.password?.[0] ||
+        error?.response?.data?.message ||
+        "Gagal mendaftar akun baru!";
+      return { success: false, message: firstError };
+    }
   },
 
   logout: async () => {
@@ -145,48 +86,57 @@ const useAuthStore = create((set, get) => ({
     } catch (e) {}
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    set({ token: null, user: null });
+    document.cookie = "gabuthub_auth_token=; path=/; max-age=0";
+    set({ token: null, user: null, loading: false });
   },
 
   fetchUser: async () => {
-    if (!get().token) return;
+    const token = get().token;
+    if (!token) return;
     try {
       const res = await API.get("/user");
-      if (res.data) {
-        saveUserToGlobalRegistry(res.data);
+      if (res.data && res.data.id) {
         localStorage.setItem("user", JSON.stringify(res.data));
         set({ user: res.data });
       }
-    } catch (e) {}
+    } catch (e) {
+      // If unauthorized, token is expired
+      if (e?.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        set({ token: null, user: null });
+      }
+    }
   },
 
   updateProfile: async (bio, avatar, newUsername, coverUrl) => {
     const currentUser = get().user;
     if (!currentUser) return { success: false, message: "User tidak ditemukan" };
-    
-    const updatedUser = { 
-      ...currentUser, 
-      username: newUsername || currentUser.username,
-      bio: bio !== undefined ? bio : currentUser.bio, 
-      avatar: avatar || currentUser.avatar,
-      coverUrl: coverUrl !== undefined ? coverUrl : currentUser.coverUrl
-    };
-
-    saveUserToGlobalRegistry(updatedUser);
-    set({ user: updatedUser });
-    localStorage.setItem("user", JSON.stringify(updatedUser));
 
     try {
-      await API.post("/user/profile", { 
+      const res = await API.post("/user/profile", {
         email: currentUser.email,
         username: newUsername || currentUser.username,
-        bio: bio !== undefined ? bio : currentUser.bio, 
+        bio: bio !== undefined ? bio : currentUser.bio,
         avatar: avatar || currentUser.avatar,
-        coverUrl 
+        coverUrl,
       });
-    } catch (e) {}
 
-    return { success: true };
+      const updatedUser = res.data?.user || {
+        ...currentUser,
+        username: newUsername || currentUser.username,
+        bio: bio !== undefined ? bio : currentUser.bio,
+        avatar: avatar || currentUser.avatar,
+        coverUrl: coverUrl !== undefined ? coverUrl : currentUser.coverUrl,
+      };
+
+      set({ user: updatedUser });
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      return { success: true, user: updatedUser };
+    } catch (error) {
+      const msg = error?.response?.data?.message || "Gagal memperbarui profil di database.";
+      return { success: false, message: msg };
+    }
   },
 }));
 
