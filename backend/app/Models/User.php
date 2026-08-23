@@ -27,7 +27,7 @@ class User extends Authenticatable
 
     public function getCoverUrlAttribute()
     {
-        return $this->cover_url;
+        return $this->attributes['cover_url'] ?? null;
     }
 
     protected $hidden = [
